@@ -18,7 +18,7 @@ public class AnglePIDF extends OpMode {
     public static double p = 0.0075, i = 0, d = 0.0005;
     public static double f = 0.1;
 
-    public static int target = 0;
+    public static int target = -650;
     public static double offset = Math.PI /3; //offset set to radians
 
     private final double ticks_in_degrees = 700/180.0;

@@ -50,7 +50,7 @@ public class RobotHardware {
         leftAngle.setDirection(DcMotorEx.Direction.REVERSE);
 
         this.rightAngle = hardwareMap.get(DcMotorEx.class, "AngleMotorRight");
-        rightAngle.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightAngle.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //Arm Extension
         this.frontExtend = hardwareMap.get(DcMotorEx.class, "ExtendMotorFront");
