@@ -10,15 +10,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name= "BasicLinearOpMode")
+@TeleOp(name= "BasicLinearOpMode2")
 
-public class BasicTeleOp extends LinearOpMode {
+public class BasicTeleOp2 extends LinearOpMode {
 
     public DcMotorEx fl, fr, bl, br;
-    private DcMotorEx angMotorLeft;
-    private DcMotorEx angMotorRight;
-    public DcMotorEx extendMotorFront, extendMotorBack;
-    public Servo ClawLeft, ClawRight, ClawMiddle;
+    //private DcMotorEx angMotorLeft;
+    //private DcMotorEx angMotorRight;
+    //public DcMotorEx extendMotorFront, extendMotorBack;
+    //public Servo ClawLeft, ClawRight, ClawMiddle;
 
 
     public void runOpMode() throws InterruptedException {
@@ -41,26 +41,26 @@ public class BasicTeleOp extends LinearOpMode {
         //ClawMiddle = hardwareMap.get(Servo.class, "ClawMiddle");
 
 
-        angMotorLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        angMotorRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        angMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        angMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //angMotorLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        //angMotorRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        //angMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //angMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        extendMotorFront.setDirection(DcMotorEx.Direction.FORWARD);
-        extendMotorBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        extendMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendMotorBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //extendMotorFront.setDirection(DcMotorEx.Direction.FORWARD);
+        //extendMotorBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        //extendMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //extendMotorBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        extendMotorFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotorBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extendMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //extendMotorFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //extendMotorBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //extendMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //extendMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //DT Motor directions
         fl.setDirection(DcMotorEx.Direction.FORWARD);
         fr.setDirection(DcMotorEx.Direction.REVERSE);
-        bl.setDirection(DcMotorEx.Direction.REVERSE);
-        br.setDirection(DcMotorEx.Direction.FORWARD);
+        bl.setDirection(DcMotorEx.Direction.FORWARD);
+        br.setDirection(DcMotorEx.Direction.REVERSE);
 
         // DT Motor Behavior
         fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -99,48 +99,48 @@ public class BasicTeleOp extends LinearOpMode {
             }
 
             if (gamepad1.left_trigger > .5) { //Player One angle
-                angMotorLeft.setPower(.7);
-                angMotorRight.setPower(.7);
+                //angMotorLeft.setPower(.7);
+                //angMotorRight.setPower(.7);
             } else if (gamepad1.right_trigger > .5) { //Player One angle
-                angMotorLeft.setPower(-.7);
-                angMotorRight.setPower(-.7);
+                //angMotorLeft.setPower(-.7);
+                //angMotorRight.setPower(-.7);
             }   else {
-                    angMotorRight.setPower(0);
-                    angMotorLeft.setPower(0);
+                //angMotorRight.setPower(0);
+                //angMotorLeft.setPower(0);
             }
 
-                if (gamepad2.left_trigger > .5) {
-                    extendMotorFront.setPower(-.3);
-                    extendMotorBack.setPower(.3);
+            if (gamepad2.left_trigger > .5) {
+                //extendMotorFront.setPower(-.3);
+                //extendMotorBack.setPower(.3);
 
-                } else if (gamepad2.right_trigger > .5) {
-                    extendMotorFront.setPower(.3);
-                    extendMotorBack.setPower(-.3);
-                }
-                else {
-                    extendMotorBack.setPower(0);
-                    extendMotorFront.setPower(0);
-                }
-                if (gamepad2.a) {
-                    ClawLeft.setPosition(.7);
-                    ClawRight.setPosition(.3);
-                }
-                else if (gamepad2.b) {
-                    ClawLeft.setPosition(.4);
-                    ClawRight.setPosition(.6);
-                }
-                if (gamepad2.x) {
-                    //.7
-                    ClawMiddle.setPosition(0.7);
-                }
-                else if (gamepad2.y) {
-                    //1.0
-                    ClawMiddle.setPosition(1);
-                }
-
+            } else if (gamepad2.right_trigger > .5) {
+                //extendMotorFront.setPower(.3);
+                //extendMotorBack.setPower(-.3);
             }
+            else {
+                //extendMotorBack.setPower(0);
+                //extendMotorFront.setPower(0);
+            }
+            if (gamepad2.a) {
+                //ClawLeft.setPosition(.7);
+                //ClawRight.setPosition(.3);
+            }
+            else if (gamepad2.b) {
+                //ClawLeft.setPosition(.4);
+                //ClawRight.setPosition(.6);
+            }
+            if (gamepad2.x) {
+                //.7
+                //ClawMiddle.setPosition(0.7);
+            }
+            else if (gamepad2.y) {
+                //1.0
+                //ClawMiddle.setPosition(1);
+            }
+
         }
     }
+}
 
 
 

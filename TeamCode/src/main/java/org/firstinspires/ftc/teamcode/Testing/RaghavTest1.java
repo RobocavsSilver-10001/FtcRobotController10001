@@ -49,8 +49,8 @@ public class RaghavTest1 extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public DcMotorEx extendMotorFront, extendMotorBack;
     public DcMotorEx angMotorLeft, angMotorRight;
-    public static int armMax= 800;
-    public static int armMin= 50;
+    public static int armMax= 700;
+    public static int armMin= -500;
 
     @Override
     public void runOpMode() {
@@ -61,22 +61,22 @@ public class RaghavTest1 extends LinearOpMode {
         DcMotor leftBackDrive = hardwareMap.get(DcMotor.class, "BackLeft");
         DcMotor rightFrontDrive = hardwareMap.get(DcMotor.class, "FrontRight");
         DcMotor rightBackDrive = hardwareMap.get(DcMotor.class, "BackRight");
-        extendMotorFront = hardwareMap.get(DcMotorEx.class, "ExtendMotorFront");
-        extendMotorBack = hardwareMap.get(DcMotorEx.class, "ExtendMotorBack");
+        //extendMotorFront = hardwareMap.get(DcMotorEx.class, "ExtendMotorFront");
+        //extendMotorBack = hardwareMap.get(DcMotorEx.class, "ExtendMotorBack");
 
-        angMotorLeft = hardwareMap.get(DcMotorEx.class, "AngleMotorLeft");
-        angMotorRight = hardwareMap.get(DcMotorEx.class, "AngleMotorRight");
+        //angMotorLeft = hardwareMap.get(DcMotorEx.class, "AngleMotorLeft");
+        angMotorRight = hardwareMap.get(DcMotorEx.class, "AngleMotor");
 
 
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        angMotorLeft.setDirection(DcMotorEx.Direction.REVERSE);
+    //    angMotorLeft.setDirection(DcMotorEx.Direction.REVERSE);
         angMotorRight.setDirection(DcMotorEx.Direction.FORWARD);
 
-        extendMotorFront.setDirection(DcMotorEx.Direction.FORWARD);
-        extendMotorBack.setDirection(DcMotorEx.Direction.FORWARD);
+        //extendMotorFront.setDirection(DcMotorEx.Direction.FORWARD);
+       // extendMotorBack.setDirection(DcMotorEx.Direction.FORWARD);
 
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -88,11 +88,11 @@ public class RaghavTest1 extends LinearOpMode {
 //        extendMotorBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        extendMotorFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        angMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    //    angMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         angMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        angMotorLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        angMotorRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        angMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        angMotorLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+//        angMotorRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+  //      angMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         angMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 //        angMotorLeft.setVelocity(500);
@@ -164,25 +164,32 @@ public class RaghavTest1 extends LinearOpMode {
             telemetry.update();
 
             if (gamepad1.a) {
-                angMotorLeft.setPower(1.0);
-                angMotorRight.setPower(1.0);
-                angMotorRight.setTargetPosition(armMax);
-                angMotorLeft.setTargetPosition(armMax);
-//                angMotorLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-//                angMotorRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-
+                if (angMotorRight.getCurrentPosition() < armMax) {
+                 //   angMotorLeft.setPower(1.0);
+                    angMotorRight.setPower(1.0);
+                    angMotorRight.setTargetPosition(armMax);
+               //     angMotorLeft.setTargetPosition(armMax);
+                 //   angMotorLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotorRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                 //   angMotorLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+                    angMotorRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+                //    angMotorLeft.setPower(0.0);
+                    //angMotorRight.setPower(0.0);
+                }
             } else {
-                angMotorLeft.setPower(0);
+//                angMotorLeft.setPower(0);
                 angMotorRight.setPower(0);
             }
             if (gamepad1.b) {
-                angMotorLeft.setPower(-0.5);
-                angMotorRight.setPower(-0.5);
-                angMotorLeft.setTargetPosition(armMin);
+               // angMotorLeft.setPower(-0.5);
+                angMotorRight.setPower(-1.0);
+              //  angMotorLeft.setTargetPosition(armMin);
                 angMotorRight.setTargetPosition(armMin);
+              //  angMotorLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                angMotorRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             } else {
-                angMotorLeft.setPower(0);
-                angMotorRight.setPower(0);
+              //  angMotorLeft.setPower(0);
+               //anMotorRight.setPower(0);
             }
         }
     }

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class RobotHardware {
     public HardwareMap hardwareMap;
@@ -12,6 +13,8 @@ public class RobotHardware {
     public DcMotorEx frontLeft, frontRight, backLeft, backRight; //DT Motors
     public DcMotorEx leftAngle, rightAngle; //Arm Angle Motors
     public DcMotorEx frontExtend, backExtend; //Arm Extension Motors
+    public Servo leftClaw, rightClaw; //End effector angle change
+    public Servo middleClaw; //Grabber
 
     private static RobotHardware instance = null;
     private boolean enabled;
@@ -58,6 +61,52 @@ public class RobotHardware {
 
         this.backExtend = hardwareMap.get(DcMotorEx.class, "ExtendMotorBack");
         backExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        this.middleClaw = hardwareMap.get(Servo.class, "ClawMiddle");
+
+        this.leftClaw = hardwareMap.get(Servo.class, "ClawLeft");
+        this.rightClaw = hardwareMap.get(Servo.class, "ClawRight");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //Odometry
         //this.leftPod =

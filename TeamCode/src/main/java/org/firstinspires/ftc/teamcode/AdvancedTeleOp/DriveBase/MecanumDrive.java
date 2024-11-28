@@ -17,7 +17,7 @@ public class MecanumDrive {
     // Method to drive the robot using mecanum controls
     public void drive(GamepadEx gamepad) {
         // Get gamepad values
-        double y = -gamepad.getLeftY(); // Forward/backward
+        double y = gamepad.getLeftY(); // Forward/backward
         double x = gamepad.getLeftX() * 1.1; // Strafing (left/right)
         double rx = gamepad.getRightX(); // Rotation
 

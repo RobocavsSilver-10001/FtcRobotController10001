@@ -11,6 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.AdvancedTeleOp.ArmAngle.AngleCommand;
 import org.firstinspires.ftc.teamcode.AdvancedTeleOp.ArmAngle.AngleSubsystem;
+import org.firstinspires.ftc.teamcode.AdvancedTeleOp.Claw.GrabCommand;
+import org.firstinspires.ftc.teamcode.AdvancedTeleOp.Claw.GrabSubsystem;
 import org.firstinspires.ftc.teamcode.AdvancedTeleOp.Robot.RobotHardware;
 import org.firstinspires.ftc.teamcode.AdvancedTeleOp.DriveBase.MecanumDrive;
 
@@ -30,6 +32,9 @@ public class CommandTeleOp extends CommandOpMode {
     // Arm subsystem instance
     private AngleSubsystem armSubsystem;
 
+    //Grabber subsystem instance
+    private GrabSubsystem grabSubsystem;
+
     // Variables for arm control
     private int armTargetAngle = -650; // Initial position
 
@@ -48,9 +53,14 @@ public class CommandTeleOp extends CommandOpMode {
         // Initialize the arm subsystem
         armSubsystem = new AngleSubsystem(robot);
 
+        //Initialize the grabber
+        grabSubsystem = new GrabSubsystem(robot);
+
         // Initialize gamepads
         gamepadex1 = new GamepadEx(gamepad1);
         gamepadex2 = new GamepadEx(gamepad2);
+
+
     }
 
     @Override
@@ -61,12 +71,20 @@ public class CommandTeleOp extends CommandOpMode {
         mecanumDrive.drive(gamepadex1);
 
         // Arm control via gamepad2 D-pad
-        if (gamepadex2.getButton(GamepadKeys.Button.DPAD_UP)) {
+        if (gamepadex1.getButton(GamepadKeys.Button.DPAD_UP)) {
             // Move arm up if D-pad up is pressed
             armTargetAngle = Math.min(armTargetAngle + 150, AngleSubsystem.MAX_ANGLE);
-        } else if (gamepadex2.getButton(GamepadKeys.Button.DPAD_DOWN)) {
+        } else if (gamepadex1.getButton(GamepadKeys.Button.DPAD_DOWN)) {
             // Move arm down if D-pad down is pressed
             armTargetAngle = Math.max(armTargetAngle - 150, AngleSubsystem.MIN_ANGLE);
+        }
+        // Middle claw control
+        if (gamepadex2.getButton(GamepadKeys.Button.A)) {
+            // Open the claw if button A is pressed
+            new GrabCommand(grabSubsystem, true).schedule();
+        } else if (gamepadex2.getButton(GamepadKeys.Button.B)) {
+            // Close the claw if button B is pressed
+            new GrabCommand(grabSubsystem, false).schedule();
         }
 
 
@@ -75,10 +93,5 @@ public class CommandTeleOp extends CommandOpMode {
 
         // Update the arm subsystem periodically
         armSubsystem.periodic();
-
-        int armPos = robot.leftAngle.getCurrentPosition();  // Get current arm position
-        telemetry.addData("Arm Position", armPos);          // Current arm position
-        telemetry.addData("Target Angle", armTargetAngle);  // Desired target angle
-        telemetry.update();  // Make sure telemetry is updated
     }
 }
