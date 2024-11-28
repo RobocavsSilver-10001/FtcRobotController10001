@@ -14,13 +14,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
     public DcMotorEx fl, fr, bl, br;
+
     public DcMotorEx extendMotor;
+    private double extendMotorZeroPower = 0.0;
+    private double extendMotorPower = 1.0;
+    private int extendMotorZeroPosition = 0;
+    private int extendMotorOutPosition = -2900;
+
     public DcMotorEx angMotor;
+
     public Servo ClawClamp, ClawTurn;
 
 
 
-
+    @Override
     public void runOpMode() throws InterruptedException {
 
         //Configuration for driver hub
@@ -37,17 +44,18 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         ClawClamp = hardwareMap.get(Servo.class, "ClawClamp");
         ClawTurn = hardwareMap.get(Servo.class, "ClawTurn");
 
-
+        //Angle of arm stuff
         angMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        angMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        angMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        angMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+        //Extend Arm Stuff
         extendMotor.setDirection(DcMotorEx.Direction.FORWARD);
-        extendMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        angMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        angMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //DT Motor directions
         fl.setDirection(DcMotorEx.Direction.FORWARD);
@@ -99,50 +107,55 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
             if (gamepad1.left_trigger > .5) { //Player One angle
                 angMotor.setPower(1);
+                telemetry.addData("Angle Pos:", angMotor.getCurrentPosition());
+                telemetry.update();
             } else if (gamepad1.right_trigger > .5) { //Player One angle
                 angMotor.setPower(-1);
-            }   else {
+                telemetry.addData("Angle Pos:", angMotor.getCurrentPosition());
+                telemetry.update();
+            } else {
                 angMotor.setPower(0);
             }
 
             if (gamepad2.left_trigger > .5) {
                 extendMotor.setPower(-.6);
-                telemetry.addData("Extend Pos:",extendMotor.getCurrentPosition());
+                telemetry.addData("Extend Pos:", extendMotor.getCurrentPosition());
                 telemetry.update();
             } else if (gamepad2.right_trigger > .5) {
                 extendMotor.setPower(.6);
-                telemetry.addData("Extend Pos:",extendMotor.getCurrentPosition());
+                telemetry.addData("Extend Pos:", extendMotor.getCurrentPosition());
                 telemetry.update();
-            }
-            else {
+            } else {
                 extendMotor.setPower(0);
             }
             if (gamepad2.a) {
                 ClawTurn.setPosition(.7);
-            }
-            else if (gamepad2.b) {
+            } else if (gamepad2.b) {
                 ClawTurn.setPosition(.4);
             }
             if (gamepad2.x) {
                 //.7
                 ClawClamp.setPosition(.7);
-            }
-            else if (gamepad2.y) {
+            } else if (gamepad2.y) {
                 //1.0
                 ClawClamp.setPosition(1.0);
             }
             if (gamepad2.a) {
-                extendMotor.setTargetPosition(-2900);
-                extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                extendMotor.getTargetPosition();
+                extendMotor.setTargetPosition(extendMotorOutPosition);
+                extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 extendMotor.setPower(-1);
+
+                telemetry.addData("Extend Pos:", extendMotor.getCurrentPosition());
+                telemetry.update();
             }
 
             if (gamepad2.b) {
-                extendMotor.setTargetPosition(0);
-                extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                extendMotor.getTargetPosition();
+                extendMotor.setTargetPosition(extendMotorZeroPosition);
+                extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 extendMotor.setPower(1);
+
+                telemetry.addData("Extend Pos:", extendMotor.getCurrentPosition());
+                telemetry.update();
             }
         }
     }
