@@ -7,6 +7,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+/*Tick Data
+        Extend Arm Out Max = 2500 Ticks
+        Extend Arm In Max = 0 Ticks (Start code with Arm all the way in)
+
+ */
 
 @TeleOp(name= "ArmPresets")
 public class ArmPresets extends LinearOpMode {
@@ -14,31 +19,42 @@ public class ArmPresets extends LinearOpMode {
 
     public DcMotorEx angMotor;
 
-    public Servo ClawClamp, ClawTurn;
+    public Servo ClawGrab;
+    public Servo ClawTurn;
+
+    final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
+    final double CLAW_SCORE_TOP_BUCKET = 0.8;
+    final double CLAW_UP_POSITION = -1.0;
+    final double CLAW_ZERO_POSITION = 0.0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ClawClamp = hardwareMap.get(Servo.class, "ClawClamp");
+        ClawGrab = hardwareMap.get(Servo.class, "ClawGrab");
         ClawTurn = hardwareMap.get(Servo.class, "ClawTurn");
         angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
         extendMotor = hardwareMap.get(DcMotorEx.class, "ExtendMotor");
 
 
-        //Angle of arm stuff
-        angMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        //BRAKE
+        extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         angMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        //DIRECTION
+        angMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        extendMotor.setDirection(DcMotorEx.Direction.REVERSE);
+
+        //Angle of arm stuff
+        angMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        angMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         //Extend Arm Stuff
-        extendMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         //Claw Stuff
-        //[Goes Here]
+        ClawTurn.setPosition(CLAW_UP_POSITION);
 
         waitForStart();
 
@@ -90,13 +106,30 @@ public class ArmPresets extends LinearOpMode {
             } else {
                 extendMotor.setPower(0);
             }
-
+            /*
+            _______________________________________________________________________________________
+            _______________________________________________________________________________________
+             */
+            /*  Claw Turn
+            _______________________________________________________________________________________
+            _______________________________________________________________________________________
+             */
+            if (gamepad2.a) {
+                ClawTurn.setPosition(CLAW_SCORE_TOP_BUCKET);
+                telemetry.addData("Claw Turn Pos:", ClawTurn.getPosition());
+            } else if (gamepad2.b){
+                ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
+                telemetry.addData("Claw Turn Pos:", ClawTurn.getPosition());
+            } else {
+                ClawTurn.setPosition(CLAW_ZERO_POSITION);
+            }
             /*
             _______________________________________________________________________________________
             _______________________________________________________________________________________
             _______________________________________________________________________________________
             _______________________________________________________________________________________
              */
+
 
         }
     }

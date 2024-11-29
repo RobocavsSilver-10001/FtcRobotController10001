@@ -30,7 +30,7 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
     private int angMotorDownOutPosition = -930;
     private int angMotorDownPosition = -3000;
 
-    public Servo ClawClamp, ClawTurn;
+    public Servo ClawGrab, ClawTurn;
 
 
 
@@ -53,7 +53,7 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
         angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
 
-        ClawClamp = hardwareMap.get(Servo.class, "ClawClamp");
+        ClawGrab = hardwareMap.get(Servo.class, "ClawGrab");
         ClawTurn = hardwareMap.get(Servo.class, "ClawTurn");
 
         //Angle of arm stuff
@@ -169,10 +169,10 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
             }
             if (gamepad2.x) {
                 //.7
-                ClawClamp.setPosition(.7);
+                ClawGrab.setPosition(.7);
             } else if (gamepad2.y) {
                 //1.0
-                ClawClamp.setPosition(1.0);
+                ClawGrab.setPosition(1.0);
             }
             if (gamepad2.a) { //Extend Arm out player 2
                 extendMotor.setTargetPosition(extendMotorOutPosition);
