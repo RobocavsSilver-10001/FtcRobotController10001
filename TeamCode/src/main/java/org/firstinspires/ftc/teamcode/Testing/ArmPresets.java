@@ -173,7 +173,7 @@ public class ArmPresets extends LinearOpMode {
             } else if (gamepad2.right_bumper) {
                 extendMotor.setPower(-1); // Retract
             } else {
-                extendMotor.setPower(0.0006); // Hold position
+                extendMotor.setPower(0);
             }
             /*
             int currentExtendPosition = extendMotor.getCurrentPosition();
