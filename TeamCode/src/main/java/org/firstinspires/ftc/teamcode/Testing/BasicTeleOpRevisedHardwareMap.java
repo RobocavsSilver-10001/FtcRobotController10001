@@ -28,27 +28,27 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
     final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
     final double CLAW_SCORE_TOP_BUCKET = 0.5;
     final double CLAW_HOME_POSITION = 0.35;
-    final double CLAW_SPECIMEN_PICK_UP = 0.6;
-    final double CLAW_CLIPPING_POSITION = 0.6;
+    final double CLAW_SPECIMEN_PICK_UP = 0.45;
+    final double CLAW_CLIPPING_POSITION = 0.52;
 
     final double CLAW_GRAB = 0.64;      // Fully closed
-    final double CLAW_RELEASE = 0.5;  // Fully open
+    final double CLAW_RELEASE = 0.55;  // Fully open
 
 
     final double MAX_EXTEND_PICKING_UP = 2500;
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
+    final double EXTEND_POST_CLIPPING = 715;
 
-    final double ANGLE_FLOOR_PICK_UP = -1060;
-    final double ANGLE_SCORE_TOP_BUKET = 3700;
+    final double ANGLE_FLOOR_PICK_UP = -1070;
+    //final double ANGLE_SCORE_TOP_BUKET = 3700;
+    final double ANGLE_SCORE_TOP_BUKET = 3800;
     final double ANGLE_ZERO = 0;
     final double ANGLE_FULL_EXTENSION_FLOOR_PICK_UP = -850;
-    final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -4670;
-    final double ANGLE_ARM_READY_TO_CLIP = -1930;
-    final double ANGLE_ARM_DONE_CLIPPING = -3950;
-
-
+    final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3460;
+    final double ANGLE_ARM_CLIP = 2950;
+    boolean preset = true;
 
 
 
@@ -70,6 +70,7 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
         extendMotor = hardwareMap.get(DcMotorEx.class, "ExtendMotor");
 
+        boolean done;
 
         //BRAKE
         extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -90,6 +91,9 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         //Claw Stuff
         ClawTurn.setPosition(CLAW_HOME_POSITION);
         ClawGrab.setPosition(CLAW_GRAB);
+
+
+
 //        ClawGrab.setPosition(0.5);
 //        sleep(1000);
 //        ClawGrab.setPosition(0.64);
@@ -103,12 +107,15 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         int EXTEND_MAX = 2500;
         int EXTEND_MIN = 0;
 
+       /*
         if (angMotor.getCurrentPosition() < ANGLE_MIN && gamepad2.left_trigger > 0.5) {
             angMotor.setPower(0);
         } else if (angMotor.getCurrentPosition() > ANGLE_MAX && gamepad2.right_trigger > 0.5) {
             angMotor.setPower(0);
         }
 
+
+        */
 
         //DT Motor directions
         fl.setDirection(DcMotorEx.Direction.FORWARD);
@@ -122,114 +129,39 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        boolean done;
+
 
         waitForStart();
-        runtime.reset();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
 
-            telemetry.addData("Gamepad2 Left Trigger:", gamepad2.left_trigger);
-            telemetry.addData("Gamepad2 Right Trigger:", gamepad2.right_trigger);
-            telemetry.addData("Gamepad2 A:", gamepad2.a);
-            telemetry.addData("Gamepad2 B:", gamepad2.b);
-            telemetry.addData("Gamepad1 Left Trigger:", gamepad1.left_trigger);
-            telemetry.addData("Gamepad1 Right Trigger:", gamepad1.right_trigger);
-            telemetry.addData("Gamepad1 A:", gamepad1.a);
-            telemetry.addData("Gamepad1 B:", gamepad1.b);
-            telemetry.addData("Angle Arm Ticks:", angMotor.getCurrentPosition());
-            telemetry.addData("Arm Extension Ticks:", extendMotor.getCurrentPosition());
-            telemetry.addData("Claw Turn Position:", ClawTurn.getPosition());
-            telemetry.addData("Dpad Up Pressed:", gamepad2.dpad_up);
-            telemetry.addData("Dpad Down Pressed:", gamepad2.dpad_down);
-            telemetry.addData("ClawGrab Position:", ClawGrab.getPosition());
-            telemetry.update();
+            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
+            double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double rx = gamepad1.right_stick_x;
 
-
-            double max;
-
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
-
-            double frontLeftPower  = axial - lateral + yaw;
-            double frontRightPower = axial - lateral - yaw;
-            double backLeftPower   = axial + lateral + yaw;
-            double backRightPower  = axial + lateral - yaw;
-
-            max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
-            max = Math.max(max, Math.abs(backLeftPower));
-            max = Math.max(max, Math.abs(backRightPower));
-
-            if (max > 1.0) {
-                frontLeftPower  /= max;
-                frontRightPower /= max;
-                backLeftPower   /= max;
-                backRightPower  /= max;
-            }
-
-            fl.setPower(frontLeftPower);
-            fr.setPower(frontRightPower);
-            bl.setPower(backLeftPower);
-            br.setPower(backRightPower);
-
-//            // Show the elapsed game time and wheel power.
-//            telemetry.addData("Status", "Run Time: " + runtime.toString());
-//            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
-//            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
-//            telemetry.update();
-
-
-            telemetry.clearAll();
-
-            /*######################################################################################
-            #########################       Presets with 2 buttons       ###########################
-            ######################################################################################
-
-
-            NOTHING IN HERE
-
-
-            ######################################################################################
-            #########################                 END                ###########################
-            ######################################################################################*/
-
-
-
-
-
-
-//            /*#######################################################################################
-//            ################################   Hold   Position   ####################################
-//            #######################################################################################*/
-//
-//            extendMotor.setTargetPosition(extendMotor.getCurrentPosition());
-//            extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-//
-//            /*#######################################################################################
-//            #########################################################################################
-//            #######################################################################################*/
-
+            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            double frontLeftPower = (y - x + rx) / denominator;
+            double backLeftPower = (y + x + rx) / denominator;
+            double frontRightPower = (y - x - rx) / denominator;
+            double backRightPower = (y + x - rx) / denominator;
 
             if (gamepad1.left_bumper) { //Slow mode
                 fl.setPower(frontLeftPower / 3);
                 fr.setPower(frontRightPower / 3);
                 bl.setPower(backLeftPower / 3);
-                br.setPower(backLeftPower / 3);
-
-                angMotor.setPower(backRightPower / 3);
-                extendMotor.setPower(backRightPower / 3);
+                br.setPower(backRightPower / 3);
             } else {
                 fl.setPower(frontLeftPower);
                 fr.setPower(frontRightPower);
                 bl.setPower(backLeftPower);
                 br.setPower(backRightPower);
 
-                angMotor.setPower(backRightPower);
-                extendMotor.setPower(backRightPower);
             }
+
+            telemetry.clearAll();
+
 
             //Manual Extending
             if (gamepad1.left_trigger > 0.5) {
@@ -237,20 +169,16 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
             } else if (gamepad1.right_trigger > 0.5) {
                 extendMotor.setPower(-1); // Retract
             } else {
-                extendMotor.setPower(0.0006); // Hold position
+                extendMotor.setPower(0);
             }
 
             //Manual Angle
             if (gamepad2.left_trigger > 0.5) {
                 angMotor.setPower(1);
 
-                telemetry.addData("Angle Pos:", angMotor.getCurrentPosition());
-                telemetry.update();
             } else if (gamepad2.right_trigger > 0.5) {
                 angMotor.setPower(-1);
 
-                telemetry.addData("Angle Pos:", angMotor.getCurrentPosition());
-                telemetry.update();
             } else {
                 angMotor.setPower(0);
             }
@@ -269,97 +197,82 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
 
             if (gamepad2.a) {//Score In Top Bucket
-                done = false;
-                while (!done) {
 
-                    //Pull in arm half way
+                ClawTurn.setPosition(CLAW_SCORE_TOP_BUCKET);
+                //Pull in arm half way
 
-                    while (extendMotor.getCurrentPosition() > EXTEND_HALF) {
-                        extendMotor.setTargetPosition((int) EXTEND_HALF);
-                        extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        extendMotor.setPower(-1);
-                    }
-                    extendMotor.setPower(0);
-
-                    //Extend arm up
-
-                    while (angMotor.getCurrentPosition() < ANGLE_SCORE_TOP_BUKET) {
-                        angMotor.setTargetPosition((int) ANGLE_SCORE_TOP_BUKET);
-                        angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        angMotor.setPower(1);
-                    }
-                    angMotor.setPower(0);
-
-                    //Extend arm out
-
-                    while (extendMotor.getCurrentPosition() < MAX_EXTEND_SCORE_IN_BUCKET) {
-                        extendMotor.setTargetPosition((int) MAX_EXTEND_SCORE_IN_BUCKET);
-                        extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        extendMotor.setPower(1);
-                    }
-                    extendMotor.setPower(0.0006);
-
-
-                    /* ########################################################
-                    Closing out loop by setting "done" to true
-                    ########################################################### */
-                    done = true;
+                while (extendMotor.getCurrentPosition() > EXTEND_HALF) {
+                    extendMotor.setTargetPosition((int) EXTEND_HALF);
+                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    extendMotor.setPower(1);
                 }
+                extendMotor.setPower(0);
+
+                //Extend arm up
+
+                while (angMotor.getCurrentPosition() < ANGLE_SCORE_TOP_BUKET) {
+                    angMotor.setTargetPosition((int) ANGLE_SCORE_TOP_BUKET);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(1);
+                }
+                angMotor.setPower(0);
+
+                //Extend arm out
+
+                while (extendMotor.getCurrentPosition() < MAX_EXTEND_SCORE_IN_BUCKET) {
+                    extendMotor.setTargetPosition((int) MAX_EXTEND_SCORE_IN_BUCKET);
+                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    extendMotor.setPower(1);
+                }
+                extendMotor.setPower(0.6);
+
             }
 
 
 
 
             if (gamepad2.b) {//Zero Position
-                done = false;
-                while (!done) {
 
-
-                    //Pull in arm half way
-
-
-                    while (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
-                        extendMotor.setTargetPosition(0);
-                        extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        extendMotor.setPower(-1);
-                    }
-                    extendMotor.setPower(-0.0006);
-
-                    //Extend arm up
-
-                    while (angMotor.getCurrentPosition() > ANGLE_ZERO) {
-                        angMotor.setTargetPosition(0);
-                        angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        angMotor.setPower(-1);
-                    }
-                    angMotor.setPower(0);
-
-                    while (angMotor.getCurrentPosition() < ANGLE_ZERO) {
-                        angMotor.setTargetPosition(0);
-                        angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        angMotor.setPower(1);
-                    }
-                    angMotor.setPower(0);
-                    ClawTurn.setPosition(CLAW_HOME_POSITION);
-                    sleep(100);
-                    ClawGrab.setPosition(CLAW_GRAB);
-
-                /* ########################################################
-                Closing out loop by setting "done" to true
-                ########################################################### */
-                    done = true;
+                while (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
+                    extendMotor.setTargetPosition(0);
+                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    extendMotor.setPower(-1);
                 }
+                extendMotor.setPower(-0.0006);
+
+                //Extend arm up
+
+                while (angMotor.getCurrentPosition() > ANGLE_ZERO || angMotor.getCurrentPosition() < ANGLE_ZERO) {
+                    angMotor.setTargetPosition(0);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(1);
+                }
+                angMotor.setPower(0);
             }
 
 
             if (gamepad2.x) {//Pick up from ground
-                done = false;
-                while (!done) {
 
-                    ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
+                ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
 
-                    //Arm goes down
+                //Arm goes down
 
+                while (angMotor.getCurrentPosition() > ANGLE_FLOOR_PICK_UP && angMotor.getCurrentPosition() < ANGLE_FLOOR_PICK_UP) {
+                    angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(-1);
+                }
+                angMotor.setPower(0);
+
+                while (angMotor.getCurrentPosition() < ANGLE_FLOOR_PICK_UP) {
+                    angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(1);
+                }
+                angMotor.setPower(0);
+
+                //Extend out
+                if (angMotor.getCurrentPosition() != ANGLE_FLOOR_PICK_UP) {
                     while (angMotor.getCurrentPosition() > ANGLE_FLOOR_PICK_UP) {
                         angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
                         angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -373,150 +286,75 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                         angMotor.setPower(1);
                     }
                     angMotor.setPower(0);
-
-                    //Extend out
-                    if (angMotor.getCurrentPosition() != ANGLE_FLOOR_PICK_UP) {
-                        while (angMotor.getCurrentPosition() > ANGLE_FLOOR_PICK_UP) {
-                            angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
-                            angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                            angMotor.setPower(-1);
-                        }
-                        angMotor.setPower(0);
-
-                        while (angMotor.getCurrentPosition() < ANGLE_FLOOR_PICK_UP) {
-                            angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
-                            angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                            angMotor.setPower(1);
-                        }
-                        angMotor.setPower(0);
-                    } else {
-                        while (extendMotor.getCurrentPosition() < MAX_EXTEND_PICKING_UP) {
-                            extendMotor.setTargetPosition((int) MAX_EXTEND_PICKING_UP);
-                            extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                            extendMotor.setPower(1);
-                        }
-                        extendMotor.setPower(0);
+                } else {
+                    while (extendMotor.getCurrentPosition() < MAX_EXTEND_PICKING_UP) {
+                        extendMotor.setTargetPosition((int) MAX_EXTEND_PICKING_UP);
+                        extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                        extendMotor.setPower(1);
                     }
-
-                    ClawGrab.setPosition(CLAW_RELEASE);
-                    ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
-
-                    /* ###########################################################
-                    ########  Closing out loop by setting "done" to true  ########
-                    ########################################################### */
-                    done = true;
+                    extendMotor.setPower(0);
                 }
+
+                ClawGrab.setPosition(CLAW_RELEASE);
+                ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
             }
 
             if (gamepad2.dpad_left) {//This will be picking up specimen
-                done = false;
-                while (!done) {
+                preset = true;
 
-                    ClawTurn.setPosition(CLAW_SPECIMEN_PICK_UP);
-                    ClawGrab.setPosition(CLAW_RELEASE);
+                ClawTurn.setPosition(CLAW_SPECIMEN_PICK_UP);
+                ClawGrab.setPosition(CLAW_RELEASE);
 
+                while (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
                     extendMotor.setTargetPosition(0);
                     extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    extendMotor.setPower(-1.0);
+                    extendMotor.setPower(1);
+                }
 
-                    while (angMotor.getCurrentPosition() > ANGLE_SPECIMEN_FLOOR_PICK_UP) {
-                        angMotor.setTargetPosition((int) ANGLE_SPECIMEN_FLOOR_PICK_UP);
-                        angMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        angMotor.setPower(-1);
-                    }
-                    angMotor.setPower(0);
-
-                    telemetry.addLine("Press X to Grab specimem and wait");
-
-
-
-                    if (gamepad1.x) {
-                        sleep(1000);
-                        while (angMotor.getCurrentPosition() < ANGLE_ARM_READY_TO_CLIP) {
-                            angMotor.setPower(1);
-                        }
-                    }
-                    telemetry.clearAll();
-
-                    /* ###########################################################
-                    ########  Closing out loop by setting "done" to true  ########
-                    ########################################################### */
-                    done = true;
-
+                while (angMotor.getCurrentPosition() > ANGLE_SPECIMEN_FLOOR_PICK_UP) {
+                    angMotor.setTargetPosition((int) ANGLE_SPECIMEN_FLOOR_PICK_UP);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(1);
                 }
             }
 
-            if (gamepad2.dpad_down) {//This will be clipping specimen on FIRST BAR
-                done = false;
-                while (!done) {
+            if (gamepad2.dpad_down) {//This will be WAITING to clip the specimen on TOP BAR
+                preset = true;
 
-                    ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
-                    ClawGrab.setPosition(CLAW_GRAB);
+                ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
+                ClawGrab.setPosition(CLAW_GRAB);
 
+                while (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
                     extendMotor.setTargetPosition(0);
                     extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    extendMotor.setPower(-1.0);
+                    extendMotor.setPower(1);
+                }
 
-                    while (angMotor.getCurrentPosition() > ANGLE_ARM_READY_TO_CLIP) {//will only happen if arm is in zero position
-                        angMotor.setPower(-1);
-                    }
-                    angMotor.setPower(0);
-                    while (angMotor.getCurrentPosition() < ANGLE_ARM_READY_TO_CLIP) {//will only happen if arm is less than zero position
-                        angMotor.setPower(1);
-                    }
-                    angMotor.setPower(0);
-
-                    telemetry.addLine("PLAYER 2 PRESS           A          WHEN READY TO CLIP");
-
-                    if (gamepad2.a) {
-                        while (angMotor.getCurrentPosition() > ANGLE_ARM_DONE_CLIPPING) {
-                            angMotor.setPower(-1);
-                        }
-                    }
-
-                    /* ###########################################################
-                    ########  Closing out loop by setting "done" to true  ########
-                    ########################################################### */
-                    done = true;
-
+                while (angMotor.getCurrentPosition() != ANGLE_ARM_CLIP) {
+                    angMotor.setTargetPosition((int) ANGLE_ARM_CLIP);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(1);
                 }
             }
 
-//            if (gamepad2.dpad_down) {//This will be clipping specimen on HIGH BAR
-//                done = false;
-//                while (!done) {
-//
-//                    ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
-//                    ClawGrab.setPosition(CLAW_GRAB);
-//
-//                    extendMotor.setTargetPosition(0);
-//                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-//                    extendMotor.setPower(-1.0);
-//
-//                    while (angMotor.getCurrentPosition() > ANGLE_ARM_READY_TO_CLIP) {//will only happen if arm is in zero position
-//                        angMotor.setPower(-1);
-//                    }
-//                    angMotor.setPower(0);
-//                    while (angMotor.getCurrentPosition() < ANGLE_ARM_READY_TO_CLIP) {//will only happen if arm is less than zero position
-//                        angMotor.setPower(1);
-//                    }
-//                    angMotor.setPower(0);
-//
-//                    telemetry.addLine("PLAYER 2 PRESS           A          WHEN READY TO CLIP");
-//
-//                    if (gamepad2.a) {
-//                        while (angMotor.getCurrentPosition() > ANGLE_ARM_DONE_CLIPPING) {
-//                            angMotor.setPower(-1);
-//                        }
-//                    }
-//
-//                    /* ###########################################################
-//                    ########  Closing out loop by setting "done" to true  ########
-//                    ########################################################### */
-//                    done = true;
-//
-//                }
-//            }
+            if (gamepad2.dpad_up) {//This will be clipping specimen on HIGH BAR
+                preset = true;
+
+                ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
+                ClawGrab.setPosition(CLAW_GRAB);
+
+                while (extendMotor.getCurrentPosition() != EXTEND_POST_CLIPPING) {
+                    extendMotor.setTargetPosition((int) EXTEND_POST_CLIPPING);
+                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    extendMotor.setPower(1);
+                }
+
+                while (angMotor.getCurrentPosition() != ANGLE_ARM_CLIP) {
+                    angMotor.setTargetPosition((int) ANGLE_ARM_CLIP);
+                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    angMotor.setPower(1);
+                }
+            }
 
 
 

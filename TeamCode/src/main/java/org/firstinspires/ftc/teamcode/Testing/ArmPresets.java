@@ -113,6 +113,7 @@ public class ArmPresets extends LinearOpMode {
         if (isStopRequested()) return;
         extendMotor.setPower(0);
         angMotor.setPower(0);
+        ClawTurn.setPosition(0);
 
 
         while (opModeIsActive()) {
@@ -199,7 +200,7 @@ public class ArmPresets extends LinearOpMode {
 
             if (gamepad2.dpad_up) {
                 double increase_claw_angle = 0.01;
-                if (ClawTurn.getPosition() < 0.6) {
+                if (ClawTurn.getPosition() < 1) {
                     increase_claw_angle = 0.0005;
                 } else {
                     increase_claw_angle = 0.0;
@@ -210,7 +211,7 @@ public class ArmPresets extends LinearOpMode {
                 ClawTurn.setPosition(ClawTurn.getPosition() + increase_claw_angle);
             } else if (gamepad2.dpad_down) {
                 double decrease_claw_angle = 0.01;
-                if (ClawTurn.getPosition() > 0.35) {
+                if (ClawTurn.getPosition() > 0) {
                     decrease_claw_angle = 0.0005;
                 } else {
                     decrease_claw_angle = 0.0;
