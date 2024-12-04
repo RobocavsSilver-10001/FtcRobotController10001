@@ -48,6 +48,10 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
     final double ANGLE_ARM_READY_TO_CLIP = -1930;
     final double ANGLE_ARM_DONE_CLIPPING = -3950;
 
+
+
+
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -99,6 +103,13 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         int EXTEND_MAX = 2500;
         int EXTEND_MIN = 0;
 
+        if (angMotor.getCurrentPosition() < ANGLE_MIN && gamepad2.left_trigger > 0.5) {
+            angMotor.setPower(0);
+        } else if (angMotor.getCurrentPosition() > ANGLE_MAX && gamepad2.right_trigger > 0.5) {
+            angMotor.setPower(0);
+        }
+
+
         //DT Motor directions
         fl.setDirection(DcMotorEx.Direction.FORWARD);
         fr.setDirection(DcMotorEx.Direction.REVERSE);
@@ -115,6 +126,8 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
+
+        if (isStopRequested()) return;
 
         while (opModeIsActive()) {
 
@@ -162,7 +175,43 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
             bl.setPower(backLeftPower);
             br.setPower(backRightPower);
 
+//            // Show the elapsed game time and wheel power.
+//            telemetry.addData("Status", "Run Time: " + runtime.toString());
+//            telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
+//            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+//            telemetry.update();
+
+
             telemetry.clearAll();
+
+            /*######################################################################################
+            #########################       Presets with 2 buttons       ###########################
+            ######################################################################################
+
+
+            NOTHING IN HERE
+
+
+            ######################################################################################
+            #########################                 END                ###########################
+            ######################################################################################*/
+
+
+
+
+
+
+//            /*#######################################################################################
+//            ################################   Hold   Position   ####################################
+//            #######################################################################################*/
+//
+//            extendMotor.setTargetPosition(extendMotor.getCurrentPosition());
+//            extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+//
+//            /*#######################################################################################
+//            #########################################################################################
+//            #######################################################################################*/
+
 
             if (gamepad1.left_bumper) { //Slow mode
                 fl.setPower(frontLeftPower / 3);
@@ -205,6 +254,10 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
             } else {
                 angMotor.setPower(0);
             }
+
+
+
+
 
             /*#######################################################################################
             #########################################################################################
@@ -261,7 +314,9 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                 done = false;
                 while (!done) {
 
+
                     //Pull in arm half way
+
 
                     while (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
                         extendMotor.setTargetPosition(0);
@@ -528,9 +583,21 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                 ClawGrab.setPosition(CLAW_RELEASE); // Open claw
             }
 
+            /*
+            _______________________________________________________________________________________
+            _______________________________________________________________________________________
+             */
+            /*
+            _______________________________________________________________________________________
+            _______________________________________________________________________________________
+            _______________________________________________________________________________________
+            _______________________________________________________________________________________
+             */
+
         }
     }
 }
+
 
 
 
