@@ -16,7 +16,6 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
 
     public DcMotorEx fl, fr, bl, br;
-    private ElapsedTime runtime = new ElapsedTime();
 
     public DcMotorEx extendMotor;
 
@@ -28,10 +27,10 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
     final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
     final double CLAW_SCORE_TOP_BUCKET = 0.5;
     final double CLAW_HOME_POSITION = 0.35;
-    final double CLAW_SPECIMEN_PICK_UP = 0.45;
+    final double CLAW_SPECIMEN_PICK_UP = 0.5;
     final double CLAW_CLIPPING_POSITION = 0.52;
 
-    final double CLAW_GRAB = 0.64;      // Fully closed
+    final double CLAW_GRAB = 0.75;      // Fully closed
     final double CLAW_RELEASE = 0.55;  // Fully open
 
 
@@ -39,16 +38,19 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
-    final double EXTEND_POST_CLIPPING = 715;
+    final double EXTEND_POST_CLIPPING = 900; //originaly 715
 
-    final double ANGLE_FLOOR_PICK_UP = -1070;
+    final double ANGLE_FLOOR_PICK_UP = -1060;
     //final double ANGLE_SCORE_TOP_BUKET = 3700;
     final double ANGLE_SCORE_TOP_BUKET = 3800;
     final double ANGLE_ZERO = 0;
     final double ANGLE_FULL_EXTENSION_FLOOR_PICK_UP = -850;
-    final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3460;
+    final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3305;
     final double ANGLE_ARM_CLIP = 2950;
     boolean preset = true;
+    boolean changed = false;
+    boolean on = false;
+
 
 
 
@@ -70,7 +72,6 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
         angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
         extendMotor = hardwareMap.get(DcMotorEx.class, "ExtendMotor");
 
-        boolean done;
 
         //BRAKE
         extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -142,8 +143,8 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y - x + rx) / denominator;
-            double backLeftPower = (y + x + rx) / denominator;
+            double frontLeftPower = (y + x + rx) / denominator;
+            double backLeftPower = (y - x + rx) / denominator;
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
 
@@ -225,11 +226,7 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                     extendMotor.setPower(1);
                 }
                 extendMotor.setPower(0.6);
-
             }
-
-
-
 
             if (gamepad2.b) {//Zero Position
 
@@ -253,18 +250,9 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
             if (gamepad2.x) {//Pick up from ground
 
-                ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
-
                 //Arm goes down
 
-                while (angMotor.getCurrentPosition() > ANGLE_FLOOR_PICK_UP && angMotor.getCurrentPosition() < ANGLE_FLOOR_PICK_UP) {
-                    angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
-                    angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    angMotor.setPower(-1);
-                }
-                angMotor.setPower(0);
-
-                while (angMotor.getCurrentPosition() < ANGLE_FLOOR_PICK_UP) {
+                while (angMotor.getCurrentPosition() != ANGLE_FLOOR_PICK_UP) {
                     angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
                     angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     angMotor.setPower(1);
@@ -272,28 +260,13 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                 angMotor.setPower(0);
 
                 //Extend out
-                if (angMotor.getCurrentPosition() != ANGLE_FLOOR_PICK_UP) {
-                    while (angMotor.getCurrentPosition() > ANGLE_FLOOR_PICK_UP) {
-                        angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
-                        angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        angMotor.setPower(-1);
-                    }
-                    angMotor.setPower(0);
 
-                    while (angMotor.getCurrentPosition() < ANGLE_FLOOR_PICK_UP) {
-                        angMotor.setTargetPosition((int) ANGLE_FLOOR_PICK_UP);
-                        angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        angMotor.setPower(1);
-                    }
-                    angMotor.setPower(0);
-                } else {
-                    while (extendMotor.getCurrentPosition() < MAX_EXTEND_PICKING_UP) {
-                        extendMotor.setTargetPosition((int) MAX_EXTEND_PICKING_UP);
-                        extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                        extendMotor.setPower(1);
-                    }
-                    extendMotor.setPower(0);
+                while (extendMotor.getCurrentPosition() < MAX_EXTEND_PICKING_UP) {
+                    extendMotor.setTargetPosition((int) MAX_EXTEND_PICKING_UP);
+                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    extendMotor.setPower(1);
                 }
+                extendMotor.setPower(0);
 
                 ClawGrab.setPosition(CLAW_RELEASE);
                 ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
@@ -343,17 +316,17 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                 ClawTurn.setPosition(CLAW_CLIPPING_POSITION);
                 ClawGrab.setPosition(CLAW_GRAB);
 
-                while (extendMotor.getCurrentPosition() != EXTEND_POST_CLIPPING) {
-                    extendMotor.setTargetPosition((int) EXTEND_POST_CLIPPING);
-                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    extendMotor.setPower(1);
-                }
-
                 while (angMotor.getCurrentPosition() != ANGLE_ARM_CLIP) {
                     angMotor.setTargetPosition((int) ANGLE_ARM_CLIP);
                     angMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     angMotor.setPower(1);
                 }
+                while (extendMotor.getCurrentPosition() != EXTEND_POST_CLIPPING) {
+                    extendMotor.setTargetPosition((int) EXTEND_POST_CLIPPING);
+                    extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    extendMotor.setPower(1);
+                }
+                sleep(500);
             }
 
 
@@ -411,27 +384,19 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
             _______________________________________________________________________________________
              */
 
-            if (gamepad1.x) {
-                telemetry.addData("In gamepad1.x:", ClawGrab.getPosition());
-                telemetry.update();
+            if (gamepad1.x && !changed) if (!on) {
                 ClawGrab.setPosition(CLAW_GRAB); // Close claw
-            } else if (gamepad1.y) {
-                telemetry.addData("In gamepad1.y:", ClawGrab.getPosition());
-                telemetry.update();
+                sleep(500);
+                on = true;
+                changed = true;
+            } else {
                 ClawGrab.setPosition(CLAW_RELEASE); // Open claw
+                sleep(500);
+                on = false;
+                changed = true;
+            } else {
+                changed = false;
             }
-
-            /*
-            _______________________________________________________________________________________
-            _______________________________________________________________________________________
-             */
-            /*
-            _______________________________________________________________________________________
-            _______________________________________________________________________________________
-            _______________________________________________________________________________________
-            _______________________________________________________________________________________
-             */
-
         }
     }
 }
