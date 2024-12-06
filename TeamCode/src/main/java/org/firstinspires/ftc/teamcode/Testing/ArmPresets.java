@@ -24,7 +24,7 @@ public class ArmPresets extends LinearOpMode {
 
     final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
     final double CLAW_SCORE_TOP_BUCKET = 0.5;
-    final double CLAW_START_POSITION = 0.35;
+    final double CLAW_START_POSITION = 0.5;
 
     final double CLAW_GRAB = 0.64;      // Fully closed
     final double CLAW_RELEASE = 0.5;  // Fully open

@@ -26,11 +26,11 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
 
     final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
     final double CLAW_SCORE_TOP_BUCKET = 0.5;
-    final double CLAW_HOME_POSITION = 0.35;
+    final double CLAW_HOME_POSITION = 0.5;
     final double CLAW_SPECIMEN_PICK_UP = 0.5;
     final double CLAW_CLIPPING_POSITION = 0.52;
 
-    final double CLAW_GRAB = 0.75;      // Fully closed
+    final double CLAW_GRAB = 0.65;      // Fully closed
     final double CLAW_RELEASE = 0.55;  // Fully open
 
 
@@ -50,6 +50,10 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
     boolean preset = true;
     boolean changed = false;
     boolean on = false;
+
+    private PIDController controller;
+    public static double p = 0.0033, i = 0, d = 0.0001;
+    public static double f = 0.055;
 
 
 
@@ -327,6 +331,7 @@ public class BasicTeleOpRevisedHardwareMap extends LinearOpMode {
                     extendMotor.setPower(1);
                 }
                 sleep(500);
+                ClawGrab.setPosition(CLAW_RELEASE);
             }
 
 
