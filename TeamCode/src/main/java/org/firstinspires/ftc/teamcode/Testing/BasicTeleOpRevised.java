@@ -390,6 +390,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
     private void pickUpFromGround() {
         ClawGrab.setPosition(CLAW_RELEASE);
         ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
+        extendArmToPosition(ZERO_EXTEND); //test
         moveArmToPosition(ANGLE_FLOOR_PICK_UP);
         extendArmToPosition(MAX_EXTEND_PICKING_UP);
     }
