@@ -31,7 +31,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
     final double CLAW_HOME_POSITION = 0.5;
     final double CLAW_SPECIMEN_PICK_UP = 0.5;
     final double CLAW_CLIPPING_POSITION = 0.5094;
-    final double CLAW_GRAB = 0.65;      // Fully closed
+    final double CLAW_GRAB = 0.69;      // Fully closed
     final double CLAW_RELEASE = 0.55;  // Fully open
 
     // Arm extension positions
@@ -42,7 +42,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
     final double EXTEND_POST_CLIPPING = 1000; //originally 900
 
     // Arm angle positions
-    final double ANGLE_FLOOR_PICK_UP = -1060;
+    final double ANGLE_FLOOR_PICK_UP = -950;
     final double ANGLE_SCORE_TOP_BUKET = 3800;
     final double MIN_ARM_ANGLE = -1070;
     final double MAX_ARM_ANGLE = 5000;
@@ -389,10 +389,10 @@ public class BasicTeleOpRevised extends LinearOpMode {
 
     // Function to pick up from the ground
     private void pickUpFromGround() {
-        moveArmToPosition(ANGLE_FLOOR_PICK_UP);
-        extendArmToPosition(MAX_EXTEND_PICKING_UP);
         ClawGrab.setPosition(CLAW_RELEASE);
         ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
+        moveArmToPosition(ANGLE_FLOOR_PICK_UP);
+        extendArmToPosition(MAX_EXTEND_PICKING_UP);
     }
 
     // Function to pick up a specimen
