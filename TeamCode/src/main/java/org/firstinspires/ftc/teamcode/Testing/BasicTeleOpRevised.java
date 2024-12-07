@@ -30,7 +30,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
     final double CLAW_SCORE_TOP_BUCKET = 0.5;
     final double CLAW_HOME_POSITION = 0.5;
     final double CLAW_SPECIMEN_PICK_UP = 0.5;
-    final double CLAW_CLIPPING_POSITION = 0.52;
+    final double CLAW_CLIPPING_POSITION = 0.5094;
     final double CLAW_GRAB = 0.65;      // Fully closed
     final double CLAW_RELEASE = 0.55;  // Fully open
 
@@ -100,7 +100,6 @@ public class BasicTeleOpRevised extends LinearOpMode {
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Initialize claw positions
-        ClawTurn.setPosition(CLAW_HOME_POSITION);
         ClawGrab.setPosition(CLAW_GRAB);
 
         // Initialize telemetry for Dashboard
