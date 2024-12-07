@@ -39,7 +39,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
-    final double EXTEND_POST_CLIPPING = 900;
+    final double EXTEND_POST_CLIPPING = 1000; //originally 900
 
     // Arm angle positions
     final double ANGLE_FLOOR_PICK_UP = -1060;
@@ -48,15 +48,17 @@ public class BasicTeleOpRevised extends LinearOpMode {
     final double MAX_ARM_ANGLE = 5000;
     final double ANGLE_ZERO = 0;
     final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3305;
-    final double ANGLE_ARM_CLIP = 2950;
+    final double ANGLE_ARM_CLIP = 3100; //originally 2950
 
     // PID control variables for the extend motor
     private PIDController pidController;
     public static double p = 0.0033, i = 0, d = 0.0001; // PID constants
-    public static double f = 0.055; //Gravity hold
+    public static double f = 0.001; //Gravity hold
 
     // Boolean flags for preset states
     boolean preset = true;
+    boolean changed = false;
+    boolean on = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -144,6 +146,9 @@ public class BasicTeleOpRevised extends LinearOpMode {
             // Call claw control function
             controlClaw();
 
+            // Call arm control function
+            controlArm();
+
             // Call angle motor control function
             controlAngleMotor();
 
@@ -185,8 +190,24 @@ public class BasicTeleOpRevised extends LinearOpMode {
         }
     }
 
-    // Function to control the claw
+    // Function to open and close the claw
     private void controlClaw() {
+        if (gamepad1.x && !changed) if (!on) {
+            ClawGrab.setPosition(CLAW_GRAB); // Close claw
+            sleep(500);
+            on = true;
+            changed = true;
+        } else {
+            ClawGrab.setPosition(CLAW_RELEASE); // Open claw
+            sleep(500);
+            on = false;
+            changed = true;
+        } else {
+            changed = false;
+        }
+    }
+    // Function to control the arm
+    private void controlArm() {
         if (gamepad1.right_trigger > 0.5) {
             // Prevent extending past the zero position (do not retract past 0)
             if (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
@@ -244,7 +265,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
     }
 
     // Additional methods for preset actions (e.g., score in top bucket, zero position, etc.)
-
+/*
     // Function to score in the top bucket
     private void scoreInTopBucket() {
         // Move the arm to the top scoring position
@@ -275,7 +296,6 @@ public class BasicTeleOpRevised extends LinearOpMode {
         extendMotor.setPower(0.5);
 
         // Open the claw
-        ClawGrab.setPosition(CLAW_RELEASE);
         ClawTurn.setPosition(CLAW_HOME_POSITION);
     }
 
@@ -350,7 +370,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
         sleep(500);  // wait for some time to ensure the specimen is clipped
         ClawGrab.setPosition(CLAW_RELEASE);
     }
-/*
+ */
 // #############################################################################
 // Take a look at the below functions if the above doesn't work out.
 // #############################################################################
@@ -398,7 +418,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
         ClawGrab.setPosition(CLAW_GRAB);
         moveArmToPosition(ANGLE_ARM_CLIP);
         extendArmToPosition(EXTEND_POST_CLIPPING);
-        sleep(500);
+        sleep(200);
         ClawGrab.setPosition(CLAW_RELEASE);
     }
 
@@ -423,6 +443,4 @@ public class BasicTeleOpRevised extends LinearOpMode {
         }
         angMotor.setPower(0);
     }
-*/
-
 }
