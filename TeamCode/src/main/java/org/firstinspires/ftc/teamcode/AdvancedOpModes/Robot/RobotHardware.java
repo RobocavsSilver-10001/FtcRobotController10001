@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.AdvancedTeleOp.Robot;
+package org.firstinspires.ftc.teamcode.AdvancedOpModes.Robot;
 
-import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,10 +11,11 @@ public class RobotHardware {
     public HardwareMap hardwareMap;
 
     public DcMotorEx frontLeft, frontRight, backLeft, backRight; //DT Motors
-    public DcMotorEx leftAngle, rightAngle; //Arm Angle Motors
-    public DcMotorEx frontExtend, backExtend; //Arm Extension Motors
-    public Servo leftClaw, rightClaw; //End effector angle change
-    public Servo middleClaw; //Grabber
+    public DcMotorEx angMotor; //Arm Angle Motors
+    public DcMotorEx extendMotor; //Arm Extension Motors
+    public Servo ClawAngle; //End effector angle change
+    public Servo Grabber; //Grabber
+    public Encoder par0, par1, perp;
 
     private static RobotHardware instance = null;
     private boolean enabled;
@@ -42,76 +43,24 @@ public class RobotHardware {
 
         this.backLeft = hardwareMap.get(DcMotorEx.class, "BackLeft");
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft.setDirection(DcMotorEx.Direction.FORWARD);
 
         this.backRight = hardwareMap.get(DcMotorEx.class, "BackRight");
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setDirection(DcMotorEx.Direction.FORWARD);
+        backRight.setDirection(DcMotorEx.Direction.REVERSE);
 
-        //Arm Angle
-        this.leftAngle = hardwareMap.get(DcMotorEx.class, "AngleMotorLeft");
-        leftAngle.setDirection(DcMotorEx.Direction.REVERSE);
-
-        this.rightAngle = hardwareMap.get(DcMotorEx.class, "AngleMotorRight");
-        rightAngle.setDirection(DcMotorSimple.Direction.FORWARD);
+        //Angle Motor
+        this.angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
+        angMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Arm Extension
-        this.frontExtend = hardwareMap.get(DcMotorEx.class, "ExtendMotorFront");
-        frontExtend.setDirection(DcMotorEx.Direction.FORWARD);
+        this.extendMotor = hardwareMap.get(DcMotorEx.class, "ExtendMotor");
+        extendMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
-        this.backExtend = hardwareMap.get(DcMotorEx.class, "ExtendMotorBack");
-        backExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+        //Claw stuff
+        this.ClawAngle = hardwareMap.get(Servo.class, "ClawTurn");
 
-        this.middleClaw = hardwareMap.get(Servo.class, "ClawMiddle");
-
-        this.leftClaw = hardwareMap.get(Servo.class, "ClawLeft");
-        this.rightClaw = hardwareMap.get(Servo.class, "ClawRight");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //Odometry
-        //this.leftPod =
-        //this.rightPod =
-        //this.middlePod =
+        this.Grabber = hardwareMap.get(Servo.class, "ClawGrab");
 
     }
 }

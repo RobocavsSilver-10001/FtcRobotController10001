@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.AdvancedTeleOp.Claw;
+/*package org.firstinspires.ftc.teamcode.AdvancedOpModes.Claw;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
@@ -6,12 +6,10 @@ public class GrabCommand extends CommandBase {
     private final GrabSubsystem grabSubsystem;
     private final boolean shouldOpen;
 
-    // Constructor
+    // Command to grab specimen with claw
     public GrabCommand(GrabSubsystem grabSubsystem, boolean shouldOpen) {
         this.grabSubsystem = grabSubsystem;
         this.shouldOpen = shouldOpen;
-
-        // Add the clawSubsystem as a requirement for this command
         addRequirements(grabSubsystem);
     }
 
@@ -37,3 +35,4 @@ public class GrabCommand extends CommandBase {
         return false;
     }
 }
+*/
