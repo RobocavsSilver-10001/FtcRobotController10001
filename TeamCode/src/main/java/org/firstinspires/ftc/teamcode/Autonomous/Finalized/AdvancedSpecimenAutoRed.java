@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.DefaultRRFiles.MecanumDrive;
 
-@Autonomous(name = "AdvancedSpecimenAuto")
+@Autonomous(name = "AdvancedSpecimenAutoRed")
 public class AdvancedSpecimenAutoRed extends LinearOpMode {
 
     @Override
