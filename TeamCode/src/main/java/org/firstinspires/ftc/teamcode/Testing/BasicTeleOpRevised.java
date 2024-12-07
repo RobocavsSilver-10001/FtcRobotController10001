@@ -24,7 +24,6 @@ public class BasicTeleOpRevised extends LinearOpMode {
     public DcMotorEx fl, fr, bl, br; // Drive motors
     public DcMotorEx extendMotor, angMotor; // Arm motors
     public Servo ClawGrab, ClawTurn; // Claw servos
-
     // Constants for claw positions
     final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
     final double CLAW_SCORE_TOP_BUCKET = 0.5;
