@@ -166,24 +166,30 @@ public class BasicTeleOpRevised extends LinearOpMode {
             telemetry.addData("PID Output", power);
             telemetry.update();
 
-            // Preset control
-            if (gamepad2.a) { // Use Case: Score in top bucket use case
-                scoreInTopBucket();
-            }
-            if (gamepad2.b) { // Use Case: Zero position
-                zeroPosition();
-            }
-            if (gamepad2.x) { // Use Case: Pick up from ground
-                pickUpFromGround();
-            }
-            if (gamepad2.dpad_left) { // Use Case: Pick up specimen
-                pickUpSpecimen();
-            }
-            if (gamepad2.dpad_down) { // Use Case: Waiting to clip specimen on high bar
-                clipSpecimenWait();
-            }
-            if (gamepad2.dpad_up) { // Use Case: Clip specimen on high bar
-                clipSpecimenHighBar();
+            try {
+
+
+                // Preset control
+                if (gamepad2.a) { // Use Case: Score in top bucket use case
+                    scoreInTopBucket();
+                }
+                if (gamepad2.b) { // Use Case: Zero position
+                    zeroPosition();
+                }
+                if (gamepad2.x) { // Use Case: Pick up from ground
+                    pickUpFromGround();
+                }
+                if (gamepad2.dpad_left) { // Use Case: Pick up specimen
+                    pickUpSpecimen();
+                }
+                if (gamepad2.dpad_down) { // Use Case: Waiting to clip specimen on high bar
+                    clipSpecimenWait();
+                }
+                if (gamepad2.dpad_up) { // Use Case: Clip specimen on high bar
+                    clipSpecimenHighBar();
+                }
+            } catch (Exception e) {
+                continue;
             }
         }
     }
@@ -209,7 +215,8 @@ public class BasicTeleOpRevised extends LinearOpMode {
         if (gamepad1.right_trigger > 0.5) {
             // Prevent extending past the zero position (do not retract past 0)
             if (extendMotor.getCurrentPosition() > ZERO_EXTEND) {
-                extendMotor.setPower(-1); // Retract the extend motor
+                //extendMotor.setPower(-1); // Retract the extend motor
+                extendArmToPosition(extendMotor.getCurrentPosition() - 5);
             } else {
                 extendMotor.setPower(0);  // Stop the motor if at or past zero
             }
@@ -226,7 +233,8 @@ public class BasicTeleOpRevised extends LinearOpMode {
             }
 
             if (extendMotor.getCurrentPosition() < maxExtendLimit) {
-                extendMotor.setPower(1); // Extend the arm
+                //extendMotor.setPower(1); // Extend the arm
+                extendArmToPosition(extendMotor.getCurrentPosition() + 5);
             } else {
                 extendMotor.setPower(0); // Stop the arm when the limit is reached
             }
@@ -374,6 +382,8 @@ public class BasicTeleOpRevised extends LinearOpMode {
 // #############################################################################
     // Function to score in the top bucket
     private void scoreInTopBucket() {
+        ClawGrab.setPosition(CLAW_GRAB);
+        sleep(100);
         ClawTurn.setPosition(CLAW_SCORE_TOP_BUCKET);
         extendArmToPosition(EXTEND_HALF);
         moveArmToPosition(ANGLE_SCORE_TOP_BUKET);
@@ -382,6 +392,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
 
     // Function to move the arm to zero position
     private void zeroPosition() {
+
         extendArmToPosition(ZERO_EXTEND);
         moveArmToPosition(ANGLE_ZERO);
     }
@@ -417,7 +428,7 @@ public class BasicTeleOpRevised extends LinearOpMode {
         ClawGrab.setPosition(CLAW_GRAB);
         moveArmToPosition(ANGLE_ARM_CLIP);
         extendArmToPosition(EXTEND_POST_CLIPPING);
-        sleep(200);
+        sleep(100);
         ClawGrab.setPosition(CLAW_RELEASE);
     }
 
