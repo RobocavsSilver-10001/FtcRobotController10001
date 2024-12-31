@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.AdvancedOpModes;
 
-// Version 2.0.0
+// Version 2.0.1
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -28,34 +28,39 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     public Servo ClawGrab, ClawTurn; // Claw servos
 
     // Constants for claw positions
-    final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
-    final double CLAW_SCORE_TOP_BUCKET = 0.5;
-    final double CLAW_HOME_POSITION = 0.5;
-    final double CLAW_SPECIMEN_PICK_UP = 0.5;
-    final double CLAW_CLIPPING_POSITION = 0.5094;
+    final double CLAW_DOWN_FLOOR_EXTEND = 0.56;
+    final double CLAW_SCORE_TOP_BUCKET = 0.55;
+    final double CLAW_HOME_POSITION = 0.55;
+    final double CLAW_SPECIMEN_PICK_UP = 0.55;
+    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.73;
+    final double CLAW_CLIPPING_POSITION = 0.5594;
     final double CLAW_GRAB = 0.65;      // Fully closed
-    final double CLAW_RELEASE = 0.55;  // Fully open
+    final double CLAW_RELEASE = 0.57;  // Fully open
 
     // Arm extension positions
-    final double MAX_EXTEND_PICKING_UP = 2500;
+    final double MAX_EXTEND_PICKING_UP = 1400;
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
     final double EXTEND_POST_CLIPPING = 1000; //originally 900
 
     // Arm angle positions
-    final double ANGLE_FLOOR_PICK_UP = -1060;
+    final double ANGLE_FLOOR_PICK_UP = -1580;
     final double ANGLE_SCORE_TOP_BUKET = 3800;
     final double MIN_ARM_ANGLE = -1070;
     final double MAX_ARM_ANGLE = 5000;
     final double ANGLE_ZERO = 0;
     final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3305;
+    final double ANGLE_SPECIMEN_WALL_PICK_UP = 7000;
     final double ANGLE_ARM_CLIP = 3100; //originally 2950
 
     // PID control variables for the extend motor
     private PIDController pidController;
     public static double p = 0.0033, i = 0, d = 0.0001; // PID constants
     public static double f = 0.001; //Gravity hold
+
+    //Fail safe
+    int mypos = 0;
 
     // Boolean flags for preset states
     boolean preset = true;
@@ -79,10 +84,10 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         // Configure motor behavior
         extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         angMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        fr.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        bl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        br.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         // Set motor directions
         angMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -97,9 +102,9 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
 
         // Reset encoders
         angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        angMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        angMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         // Initialize claw positions
         //ClawTurn.setPosition(CLAW_HOME_POSITION);
@@ -188,8 +193,11 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
                     if (gamepad2.x) { // Use Case: Pick up from ground
                         pickUpFromGround();
                     }
-                    if (gamepad2.dpad_left) { // Use Case: Pick up specimen
-                        pickUpSpecimen();
+                    if (gamepad2.dpad_left) { // Use Case: Pick up specimen floor
+                        pickUpSpecimenFloor();
+                    }
+                    if (gamepad2.dpad_right) { //Use Case: Pick up specimen wall
+                        pickUpSpecimenWall();
                     }
                     if (gamepad2.dpad_down) { // Use Case: Clip specimen on top bar
                         clipSpecimenWait();
@@ -197,6 +205,15 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
                     if (gamepad2.dpad_up) { // Use Case: Clip specimen on high bar
                         clipSpecimenHighBar();
                     }
+                    if (gamepad1.dpad_left) { // Use Case: Reset Encoder button
+                        resetMotorPosition();
+                    }
+
+                    if (gamepad2.right_bumper) {
+                        angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                    }
+
                 }
             }
         });
@@ -288,20 +305,27 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     private void pickUpFromGround() {
         ClawGrab.setPosition(CLAW_RELEASE);
         ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
-        extendArmToPosition(ZERO_EXTEND); //test
         moveArmToPosition(ANGLE_FLOOR_PICK_UP);
-        waitForArmExtendAndAnglePosition();
-        extendArmToPosition(MAX_EXTEND_PICKING_UP);
+        extendArmToPosition(ZERO_EXTEND); //test
         waitForArmExtendPosition();
+        extendArmToPosition(MAX_EXTEND_PICKING_UP);
+        waitForArmExtendAndAnglePosition();
     }
 
-    // Function to pick up a specimen
-    private void pickUpSpecimen() {
+    // Function to pick up a specimen from floor
+    private void pickUpSpecimenFloor() {
         ClawTurn.setPosition(CLAW_SPECIMEN_PICK_UP);
         ClawGrab.setPosition(CLAW_RELEASE);
         extendArmToPosition(ZERO_EXTEND);
         moveArmToPosition(ANGLE_SPECIMEN_FLOOR_PICK_UP);
         waitForArmExtendAndAnglePosition();
+    }
+
+    //Function to pick up specimen from wall
+    private void pickUpSpecimenWall() {
+        ClawTurn.setPosition(CLAW_SPECIMEN_WALL_PICK_UP);
+        moveArmToPosition(ANGLE_SPECIMEN_WALL_PICK_UP);
+        extendArmToPosition(ZERO_EXTEND);
     }
 
     // Function to clip the specimen on the top bar
@@ -322,6 +346,11 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         waitForArmExtendAndAnglePosition();
         sleep(100);
         ClawGrab.setPosition(CLAW_RELEASE);
+    }
+
+    //Function to Reset encoder button
+    private void resetMotorPosition() {
+        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     // Helper function to extend the arm to a target position

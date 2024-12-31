@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.Testing;
+package org.firstinspires.ftc.teamcode.AdvancedOpModes;
 
-// Version 2.0.0
+// Version 2.1.0
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -12,15 +12,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-/***************************************************************************************************************************
- Real-time PID Tuning: Now, the p, i, and d values are dynamically updated in the runOpMode method, using sliders from the FTC Dashboard.
- You'll be able to change the PID constants while the robot is running.
- Multiple Telemetry: Using MultipleTelemetry, the telemetry is sent both to the robot's standard output and to the FTC Dashboard for visualization.
- PID Constant Update: The PID controller’s p, i, and d values are updated in real time by the FTC Dashboard.
- ***************************************************************************************************************************/
+@TeleOp(name= "MultiThreadTeleOpV2")
+public class MultiThreadTeleOpV2 extends LinearOpMode {
 
-@TeleOp(name= "MultiThreading")
-public class MultiTheading extends LinearOpMode {
+    private volatile boolean isActive = true; // Shared flag for thread termination
+    private ElapsedTime clawDebounceTimer = new ElapsedTime();
 
     // Declare hardware components
     public DcMotorEx fl, fr, bl, br; // Drive motors
@@ -42,7 +38,7 @@ public class MultiTheading extends LinearOpMode {
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
-    final double EXTEND_POST_CLIPPING = 1000; //originally 900
+    final double EXTEND_POST_CLIPPING = 1000; // originally 900
 
     // Arm angle positions
     final double ANGLE_FLOOR_PICK_UP = -1580;
@@ -52,20 +48,22 @@ public class MultiTheading extends LinearOpMode {
     final double ANGLE_ZERO = 0;
     final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3305;
     final double ANGLE_SPECIMEN_WALL_PICK_UP = 7000;
-    final double ANGLE_ARM_CLIP = 3100; //originally 2950
+    final double ANGLE_ARM_CLIP = 3100; // originally 2950
 
     // PID control variables for the extend motor
     private PIDController pidController;
     public static double p = 0.0033, i = 0, d = 0.0001; // PID constants
-    public static double f = 0.001; //Gravity hold
+    public static double f = 0.001; // Gravity hold
 
-    //Fail safe
+    // Fail safe
     int mypos = 0;
 
     // Boolean flags for preset states
     boolean preset = true;
     boolean changed = false;
     boolean on = false;
+
+    private final Object lock = new Object(); // Synchronization lock
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -84,10 +82,10 @@ public class MultiTheading extends LinearOpMode {
         // Configure motor behavior
         extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         angMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        fr.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        bl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        br.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         // Set motor directions
         angMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -107,19 +105,14 @@ public class MultiTheading extends LinearOpMode {
         extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         // Initialize claw positions
-        //ClawTurn.setPosition(CLAW_HOME_POSITION);
         ClawGrab.setPosition(CLAW_GRAB);
 
-        // Wait for start
-        waitForStart();
 
-        if (isStopRequested()) return;
+        isActive = true; // Set the flag to true at the start
 
-        // Define and start threads for controlling drive and preset
-        Thread driveThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (opModeIsActive()) {
+        Thread driveThread = new Thread(() -> {
+            while (isActive()) { // Use the shared flag for loop condition
+                synchronized (lock) {
                     // Handle drive train control
                     double y = -gamepad1.left_stick_y;
                     double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
@@ -131,7 +124,6 @@ public class MultiTheading extends LinearOpMode {
                     double frontRightPower = (y - x - rx) / denominator;
                     double backRightPower = (y + x - rx) / denominator;
 
-                    // Drive motor control with speed adjustment via bumpers
                     if (gamepad1.left_bumper) {
                         fl.setPower(frontLeftPower / 3);
                         fr.setPower(frontRightPower / 3);
@@ -143,6 +135,19 @@ public class MultiTheading extends LinearOpMode {
                         bl.setPower(backLeftPower);
                         br.setPower(backRightPower);
                     }
+                }
+            }
+        });
+
+        Thread presetThread = new Thread(() -> {
+            while (isActive()) { // Use the shared flag for loop condition
+                synchronized (lock) {
+                    // Adjust PID constants in real time using the dashboard sliders
+                    pidController.setP(p);
+                    pidController.setI(i);
+                    pidController.setD(d);
+                    pidController.setF(f);
+
                     // Call claw control function
                     controlClaw();
 
@@ -151,26 +156,11 @@ public class MultiTheading extends LinearOpMode {
 
                     // Call angle motor control function
                     controlAngleMotor();
-                }
-            }
-        });
-
-        Thread presetThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (opModeIsActive()) {
-                    // Adjust PID constants in real time using the dashboard sliders
-                    pidController.setP(p);
-                    pidController.setI(i);
-                    pidController.setD(d);
-                    pidController.setF(f);
-
-
 
                     // PID control for holding the arm in position
                     double currentPosition = extendMotor.getCurrentPosition();
                     double targetPosition = gamepad2.left_stick_y * MAX_EXTEND_PICKING_UP; // Adjust target based on joystick input
-                    double power = pidController.calculate (currentPosition, targetPosition);
+                    double power = pidController.calculate(currentPosition, targetPosition);
                     extendMotor.setPower(power); // Apply calculated power to hold position
 
                     // Display telemetry
@@ -213,16 +203,25 @@ public class MultiTheading extends LinearOpMode {
                         angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
                         extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
                     }
-
                 }
             }
         });
 
-        // Start both threads
+        // Wait for start
+        waitForStart();
+
         driveThread.start();
         presetThread.start();
 
-        // Wait for threads to complete
+
+        while (opModeIsActive()) {
+            // Main OpMode logic, if any
+        }
+
+        // Stop threads by resetting the flag
+        setActive(false);
+
+        // Wait for threads to terminate
         try {
             driveThread.join();
             presetThread.join();
@@ -231,18 +230,32 @@ public class MultiTheading extends LinearOpMode {
         }
     }
 
-    // Function to open and close the claw
+    private boolean isActive() {
+        synchronized (lock) {
+            return isActive;
+        }
+    }
+
+    private void setActive(boolean active) {
+        synchronized (lock) {
+            isActive = active;
+        }
+    }
+
+
     private void controlClaw() {
-        if (gamepad1.x && !changed) if (!on) {
-            ClawGrab.setPosition(CLAW_GRAB); // Close claw
-            sleep(500);
-            on = true;
-            changed = true;
-        } else {
-            ClawGrab.setPosition(CLAW_RELEASE); // Open claw
-            sleep(500);
-            on = false;
-            changed = true;
+        double debounceInterval = 0.5; // 0.5 seconds debounce time
+
+        if (gamepad1.x && clawDebounceTimer.seconds() > debounceInterval) {
+            if (!on) {
+                ClawGrab.setPosition(CLAW_GRAB); // Close claw
+                on = true;
+            } else {
+                ClawGrab.setPosition(CLAW_RELEASE); // Open claw
+                on = false;
+            }
+            changed = true; // State has changed
+            clawDebounceTimer.reset(); // Reset debounce timer
         } else {
             changed = false;
         }
@@ -285,7 +298,7 @@ public class MultiTheading extends LinearOpMode {
     // Function to score in the top bucket
     private void scoreInTopBucket() {
         ClawGrab.setPosition(CLAW_GRAB);
-        sleep(100);
+        sleepSafe(100);
         ClawTurn.setPosition(CLAW_SCORE_TOP_BUCKET);
         extendArmToPosition(EXTEND_HALF);
         moveArmToPosition(ANGLE_SCORE_TOP_BUKET);
@@ -325,6 +338,7 @@ public class MultiTheading extends LinearOpMode {
     private void pickUpSpecimenWall() {
         ClawTurn.setPosition(CLAW_SPECIMEN_WALL_PICK_UP);
         moveArmToPosition(ANGLE_SPECIMEN_WALL_PICK_UP);
+        extendArmToPosition(ZERO_EXTEND);
     }
 
     // Function to clip the specimen on the top bar
@@ -343,7 +357,7 @@ public class MultiTheading extends LinearOpMode {
         moveArmToPosition(ANGLE_ARM_CLIP);
         extendArmToPosition(EXTEND_POST_CLIPPING);
         waitForArmExtendAndAnglePosition();
-        sleep(100);
+        sleepSafe(100);
         ClawGrab.setPosition(CLAW_RELEASE);
     }
 
@@ -366,33 +380,39 @@ public class MultiTheading extends LinearOpMode {
         angMotor.setPower(1);
     }
 
-    // Helper function to wait for the arm to extend to the target position
-    private void waitForArmExtendAndAnglePosition() {
-        while (extendMotor.isBusy()||angMotor.isBusy()) {
-            // Wait for the arm to reach target
-            if (extendMotor.isBusy() && mypos == extendMotor.getCurrentPosition()) {
-                resetExtendMotor();
+    private void sleepSafe(int milliseconds) {
+        int sleepInterval = 10; // Check isActive every 10 milliseconds
+        int elapsed = 0;
+
+        while (elapsed < milliseconds && isActive) {
+            try {
+                Thread.sleep(sleepInterval);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore interrupt status
                 break;
             }
-            mypos = extendMotor.getCurrentPosition();
+            elapsed += sleepInterval;
+        }
+    }
+
+    private void waitForArmExtendPosition() {
+        ElapsedTime timeout = new ElapsedTime();
+        while (extendMotor.isBusy() && opModeIsActive() && timeout.seconds() < 3) {
+            // Wait for the arm to reach target or timeout
+            sleepSafe(10);
+        }
+        extendMotor.setPower(0);
+    }
+
+    private void waitForArmExtendAndAnglePosition() {
+        ElapsedTime timeout = new ElapsedTime();
+        while ((extendMotor.isBusy() || angMotor.isBusy()) && opModeIsActive() && timeout.seconds() < 3) {
+            // Wait for the arm to reach target or timeout
+            sleepSafe(10);
         }
         extendMotor.setPower(0);
         angMotor.setPower(0);
     }
-
-    // Helper function to wait for the arm to extend to the target position
-    private void waitForArmExtendPosition() {
-        while (extendMotor.isBusy()) {
-            // Wait for the arm to reach target
-            if (mypos == extendMotor.getCurrentPosition()) {
-                resetExtendMotor();
-                break;
-            }
-            mypos = extendMotor.getCurrentPosition();
-        }
-        extendMotor.setPower(0);
-    }
-
     // Helper function to wait for the arm to move to the target angle
     private void waitForArmAngle() {
         while (angMotor.isBusy()) {
@@ -400,8 +420,8 @@ public class MultiTheading extends LinearOpMode {
         }
         angMotor.setPower(0);
     }
-    private void resetExtendMotor() {
-       // TO DO: add the code to reset the motor
-        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
+    //private void resetExtendMotor() {
+    //    // TO DO: add the code to reset the motor
+    //    extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+    //}
 }

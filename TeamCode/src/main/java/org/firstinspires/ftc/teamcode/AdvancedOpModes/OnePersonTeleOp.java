@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Testing;
+package org.firstinspires.ftc.teamcode.AdvancedOpModes;
 
 // Version 2.0.0
 
@@ -19,8 +19,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  PID Constant Update: The PID controller’s p, i, and d values are updated in real time by the FTC Dashboard.
  ***************************************************************************************************************************/
 
-@TeleOp(name= "MultiThreading")
-public class MultiTheading extends LinearOpMode {
+@TeleOp(name= "ABCOnePlayer")
+public class OnePersonTeleOp extends LinearOpMode {
 
     // Declare hardware components
     public DcMotorEx fl, fr, bl, br; // Drive motors
@@ -115,121 +115,97 @@ public class MultiTheading extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        // Define and start threads for controlling drive and preset
-        Thread driveThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (opModeIsActive()) {
-                    // Handle drive train control
-                    double y = -gamepad1.left_stick_y;
-                    double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-                    double rx = gamepad1.right_stick_x;
 
-                    double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-                    double frontLeftPower = (y + x + rx) / denominator;
-                    double backLeftPower = (y - x + rx) / denominator;
-                    double frontRightPower = (y - x - rx) / denominator;
-                    double backRightPower = (y + x - rx) / denominator;
+        while (opModeIsActive()) {
+            // Handle drive train control
+            double y = -gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double rx = gamepad1.right_stick_x;
 
-                    // Drive motor control with speed adjustment via bumpers
-                    if (gamepad1.left_bumper) {
-                        fl.setPower(frontLeftPower / 3);
-                        fr.setPower(frontRightPower / 3);
-                        bl.setPower(backLeftPower / 3);
-                        br.setPower(backRightPower / 3);
-                    } else {
-                        fl.setPower(frontLeftPower);
-                        fr.setPower(frontRightPower);
-                        bl.setPower(backLeftPower);
-                        br.setPower(backRightPower);
-                    }
-                    // Call claw control function
-                    controlClaw();
+            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            double frontLeftPower = (y + x + rx) / denominator;
+            double backLeftPower = (y - x + rx) / denominator;
+            double frontRightPower = (y - x - rx) / denominator;
+            double backRightPower = (y + x - rx) / denominator;
 
-                    // Call viper slide control function
-                    viperSlideControl();
-
-                    // Call angle motor control function
-                    controlAngleMotor();
-                }
+            // Drive motor control with speed adjustment via bumpers
+            if (gamepad1.left_bumper) {
+                fl.setPower(frontLeftPower / 3);
+                fr.setPower(frontRightPower / 3);
+                bl.setPower(backLeftPower / 3);
+                br.setPower(backRightPower / 3);
+            } else {
+                fl.setPower(frontLeftPower);
+                fr.setPower(frontRightPower);
+                bl.setPower(backLeftPower);
+                br.setPower(backRightPower);
             }
-        });
 
-        Thread presetThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (opModeIsActive()) {
-                    // Adjust PID constants in real time using the dashboard sliders
-                    pidController.setP(p);
-                    pidController.setI(i);
-                    pidController.setD(d);
-                    pidController.setF(f);
+            // Adjust PID constants in real time using the dashboard sliders
+            pidController.setP(p);
+            pidController.setI(i);
+            pidController.setD(d);
+            pidController.setF(f);
 
 
+            // PID control for holding the arm in position
+            double currentPosition = extendMotor.getCurrentPosition();
+            double targetPosition = gamepad2.left_stick_y * MAX_EXTEND_PICKING_UP; // Adjust target based on joystick input
+            double power = pidController.calculate(currentPosition, targetPosition);
+            extendMotor.setPower(power); // Apply calculated power to hold position
 
-                    // PID control for holding the arm in position
-                    double currentPosition = extendMotor.getCurrentPosition();
-                    double targetPosition = gamepad2.left_stick_y * MAX_EXTEND_PICKING_UP; // Adjust target based on joystick input
-                    double power = pidController.calculate (currentPosition, targetPosition);
-                    extendMotor.setPower(power); // Apply calculated power to hold position
+            // Display telemetry
+            telemetry.addData("PID P", p);
+            telemetry.addData("PID I", i);
+            telemetry.addData("PID D", d);
+            telemetry.addData("PID F", f);
+            telemetry.addData("Extend Motor Position", currentPosition);
+            telemetry.addData("Target Position", targetPosition);
+            telemetry.addData("PID Output", power);
+            telemetry.update();
 
-                    // Display telemetry
-                    telemetry.addData("PID P", p);
-                    telemetry.addData("PID I", i);
-                    telemetry.addData("PID D", d);
-                    telemetry.addData("PID F", f);
-                    telemetry.addData("Extend Motor Position", currentPosition);
-                    telemetry.addData("Target Position", targetPosition);
-                    telemetry.addData("PID Output", power);
-                    telemetry.update();
-
-                    // Preset control
-                    if (gamepad2.a) { // Use Case: Score in top bucket use case
-                        scoreInTopBucket();
-                    }
-                    if (gamepad2.b) { // Use Case: Zero position
-                        zeroPosition();
-                    }
-                    if (gamepad2.x) { // Use Case: Pick up from ground
-                        pickUpFromGround();
-                    }
-                    if (gamepad2.dpad_left) { // Use Case: Pick up specimen floor
-                        pickUpSpecimenFloor();
-                    }
-                    if (gamepad2.dpad_right) { //Use Case: Pick up specimen wall
-                        pickUpSpecimenWall();
-                    }
-                    if (gamepad2.dpad_down) { // Use Case: Clip specimen on top bar
-                        clipSpecimenWait();
-                    }
-                    if (gamepad2.dpad_up) { // Use Case: Clip specimen on high bar
-                        clipSpecimenHighBar();
-                    }
-                    if (gamepad1.dpad_left) { // Use Case: Reset Encoder button
-                        resetMotorPosition();
-                    }
-
-                    if (gamepad2.right_bumper) {
-                        angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-                    }
-
-                }
+            // Preset control
+            if (gamepad1.a) { // Use Case: Score in top bucket use case
+                scoreInTopBucket();
             }
-        });
+            if (gamepad1.b) { // Use Case: Zero position
+                zeroPosition();
+            }
+            if (gamepad1.y) { // Use Case: Pick up from ground
+                pickUpFromGround();
+            }
+            if (gamepad1.dpad_left) { // Use Case: Pick up specimen floor
+                pickUpSpecimenFloor();
+            }
+            if (gamepad1.dpad_right) { //Use Case: Pick up specimen wall
+                pickUpSpecimenWall();
+            }
+            if (gamepad1.dpad_down) { // Use Case: Clip specimen on top bar
+                clipSpecimenWait();
+            }
+            if (gamepad1.dpad_up) { // Use Case: Clip specimen on high bar
+                clipSpecimenHighBar();
+            }
+            if (gamepad1.dpad_left) { // Use Case: Reset Encoder button
+                resetMotorPosition();
+            }
 
-        // Start both threads
-        driveThread.start();
-        presetThread.start();
+            if (gamepad2.right_bumper) {
+                angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            }
 
-        // Wait for threads to complete
-        try {
-            driveThread.join();
-            presetThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            // Call claw control function
+            controlClaw();
+
+            // Call viper slide control function
+            viperSlideControl();
+
+            // Call angle motor control function
+            controlAngleMotor();
         }
     }
+
 
     // Function to open and close the claw
     private void controlClaw() {
@@ -370,11 +346,11 @@ public class MultiTheading extends LinearOpMode {
     private void waitForArmExtendAndAnglePosition() {
         while (extendMotor.isBusy()||angMotor.isBusy()) {
             // Wait for the arm to reach target
-            if (extendMotor.isBusy() && mypos == extendMotor.getCurrentPosition()) {
-                resetExtendMotor();
-                break;
-            }
-            mypos = extendMotor.getCurrentPosition();
+//            if (extendMotor.isBusy() && mypos == extendMotor.getCurrentPosition()) {
+//                resetExtendMotor();
+//                break;
+//            }
+//            mypos = extendMotor.getCurrentPosition();
         }
         extendMotor.setPower(0);
         angMotor.setPower(0);
@@ -384,11 +360,11 @@ public class MultiTheading extends LinearOpMode {
     private void waitForArmExtendPosition() {
         while (extendMotor.isBusy()) {
             // Wait for the arm to reach target
-            if (mypos == extendMotor.getCurrentPosition()) {
-                resetExtendMotor();
-                break;
-            }
-            mypos = extendMotor.getCurrentPosition();
+//            if (mypos == extendMotor.getCurrentPosition()) {
+//                resetExtendMotor();
+//                break;
+//            }
+//            mypos = extendMotor.getCurrentPosition();
         }
         extendMotor.setPower(0);
     }
@@ -401,7 +377,7 @@ public class MultiTheading extends LinearOpMode {
         angMotor.setPower(0);
     }
     private void resetExtendMotor() {
-       // TO DO: add the code to reset the motor
+        // TO DO: add the code to reset the motor
         extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }
 }

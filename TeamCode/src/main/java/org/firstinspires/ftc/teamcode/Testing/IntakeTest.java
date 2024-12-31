@@ -95,8 +95,6 @@ public class IntakeTest extends LinearOpMode {
         bl.setDirection(DcMotorEx.Direction.FORWARD);
         br.setDirection(DcMotorEx.Direction.REVERSE);
 
-        // Initialize PID controller for extend motor
-        pidController = new PIDController(p, i, d);
 
         // Reset encoders
         angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -134,19 +132,25 @@ public class IntakeTest extends LinearOpMode {
                 bl.setPower(backLeftPower);
                 br.setPower(backRightPower);
             }
-            // Display telemetry
-            telemetry.addData("PID P", p);
-            telemetry.addData("PID I", i);
-            telemetry.addData("PID D", d);
-            telemetry.addData("PID F", f);
-            if (gamepad2.right_trigger > 0) {
+            telemetry.addData("Intake code: ", gamepad1.a);
+            if (gamepad1.a) {
+                telemetry.addData("in the right trigger", gamepad1.right_trigger);
                 IntakeLeft.setPower(1);
                 IntakeRight.setPower(-1);
-            } else if (gamepad2.left_trigger > 0) {
+            } else if (gamepad1.b) {
                 IntakeLeft.setPower(-1);
+                IntakeRight.setPower(1);
             } else {
                 IntakeLeft.setPower(0);
                 IntakeRight.setPower(0);
+            }
+
+            if (gamepad1.x) {
+                ClawTurn.setPosition(ClawTurn.getPosition()+0.001);
+            } else if (gamepad1.y) {
+                ClawTurn.setPosition(ClawTurn.getPosition()-0.001);
+            } else {
+                ClawTurn.setPosition(ClawTurn.getPosition());
             }
 
 
