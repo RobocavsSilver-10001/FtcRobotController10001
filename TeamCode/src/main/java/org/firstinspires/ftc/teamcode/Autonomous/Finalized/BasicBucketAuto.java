@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.DefaultRRFiles.MecanumDrive;
 
 @Autonomous(name = "BucketAuto")
 public class BasicBucketAuto extends LinearOpMode {
+    //
 
     @Override
     public void runOpMode() {
