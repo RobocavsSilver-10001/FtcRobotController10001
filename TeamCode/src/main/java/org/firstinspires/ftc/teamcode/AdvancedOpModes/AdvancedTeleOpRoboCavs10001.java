@@ -9,15 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-/***************************************************************************************************************************
- Real-time PID Tuning: Now, the p, i, and d values are dynamically updated in the runOpMode method, using sliders from the FTC Dashboard.
- You'll be able to change the PID constants while the robot is running.
- Multiple Telemetry: Using MultipleTelemetry, the telemetry is sent both to the robot's standard output and to the FTC Dashboard for visualization.
- PID Constant Update: The PID controller’s p, i, and d values are updated in real time by the FTC Dashboard.
- ***************************************************************************************************************************/
 
 @TeleOp(name= "ABCTeleOp")
 public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
@@ -25,6 +19,7 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     // Declare hardware components
     public DcMotorEx fl, fr, bl, br; // Drive motors
     public DcMotorEx extendMotor, angMotor; // Arm motors
+    public DcMotorEx leftLinearActuatorMotor, rightLinearActuatorMotor; //Hang motors
     public Servo ClawGrab, ClawTurn; // Claw servos
 
     // Constants for claw positions
@@ -34,15 +29,15 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     final double CLAW_SPECIMEN_PICK_UP = 0.55;
     final double CLAW_SPECIMEN_WALL_PICK_UP = 0.73;
     final double CLAW_CLIPPING_POSITION = 0.5594;
-    final double CLAW_GRAB = 0.65;      // Fully closed
-    final double CLAW_RELEASE = 0.57;  // Fully open
+    final double CLAW_GRAB = 0.7;      // Fully closed
+    final double CLAW_RELEASE = 0.62;  // Fully open
 
     // Arm extension positions
     final double MAX_EXTEND_PICKING_UP = 1400;
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
-    final double EXTEND_POST_CLIPPING = 1000; //originally 900
+    final double EXTEND_POST_CLIPPING = 1000; // originally 900
 
     // Arm angle positions
     final double ANGLE_FLOOR_PICK_UP = -1580;
@@ -52,14 +47,18 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     final double ANGLE_ZERO = 0;
     final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3305;
     final double ANGLE_SPECIMEN_WALL_PICK_UP = 7000;
-    final double ANGLE_ARM_CLIP = 3100; //originally 2950
+    final double ANGLE_ARM_CLIP = 3100; // originally 2950
+
+    // Linear Actuator Positions
+    final double LOWBAR = 1500;
+    final double ABOVE_LOWBAR = 1700;
 
     // PID control variables for the extend motor
     private PIDController pidController;
     public static double p = 0.0033, i = 0, d = 0.0001; // PID constants
-    public static double f = 0.001; //Gravity hold
+    public static double f = 0.001; // Gravity hold
 
-    //Fail safe
+    // Fail safe
     int mypos = 0;
 
     // Boolean flags for preset states
@@ -80,6 +79,9 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         ClawTurn = hardwareMap.get(Servo.class, "ClawTurn");
         angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
         extendMotor = hardwareMap.get(DcMotorEx.class, "ExtendMotor");
+        leftLinearActuatorMotor = hardwareMap.get(DcMotorEx.class, "leftLAM");
+        rightLinearActuatorMotor = hardwareMap.get(DcMotorEx.class, "rightLAM");
+
 
         // Configure motor behavior
         extendMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -92,6 +94,8 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         // Set motor directions
         angMotor.setDirection(DcMotorEx.Direction.REVERSE);
         extendMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        leftLinearActuatorMotor.setDirection(DcMotorSimple.Direction.FORWARD); //IDK
+        rightLinearActuatorMotor.setDirection(DcMotorSimple.Direction.REVERSE); //IDK
         fl.setDirection(DcMotorEx.Direction.FORWARD);
         fr.setDirection(DcMotorEx.Direction.REVERSE);
         bl.setDirection(DcMotorEx.Direction.FORWARD);
@@ -100,14 +104,9 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         // Initialize PID controller for extend motor
         pidController = new PIDController(p, i, d);
 
-        // Reset encoders
-        angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        angMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
 
         // Initialize claw positions
-        //ClawTurn.setPosition(CLAW_HOME_POSITION);
         ClawGrab.setPosition(CLAW_GRAB);
 
         // Wait for start
@@ -143,6 +142,29 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
                         bl.setPower(backLeftPower);
                         br.setPower(backRightPower);
                     }
+                }
+            }
+        });
+
+        Thread presetThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ElapsedTime alert = new ElapsedTime();
+                while (opModeIsActive()) {
+                    if (alert.seconds() > 240) {
+                        telemetry.clearAll();
+                        sleep(500);
+                        telemetry.addLine("##################################################################################################################################################################################################################################################################################################################################");
+                        telemetry.clearAll();
+                        sleep(500);
+                        telemetry.addLine("##################################################################################################################################################################################################################################################################################################################################");
+                    }
+                    // Adjust PID constants in real time using the dashboard sliders
+                    pidController.setP(p);
+                    pidController.setI(i);
+                    pidController.setD(d);
+                    pidController.setF(f);
+
                     // Call claw control function
                     controlClaw();
 
@@ -151,28 +173,27 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
 
                     // Call angle motor control function
                     controlAngleMotor();
-                }
-            }
-        });
 
-        Thread presetThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (opModeIsActive()) {
-                    // Adjust PID constants in real time using the dashboard sliders
-                    pidController.setP(p);
-                    pidController.setI(i);
-                    pidController.setD(d);
-                    pidController.setF(f);
-
+                    if (gamepad1.dpad_left) { // Use Case: Reset Encoder button
+                        resetMotorPosition();
+                    }
+                    if (gamepad1.y) { // Use Case: Ready for Hang on First Bar
+                        readyToHang();
+                    }
+                    if (gamepad1.a) { // Use Case: Hang for first bar Button
+                        hangOnLowBar();
+                    }
 
 
                     // PID control for holding the arm in position
                     double currentPosition = extendMotor.getCurrentPosition();
                     double targetPosition = gamepad2.left_stick_y * MAX_EXTEND_PICKING_UP; // Adjust target based on joystick input
                     double power = pidController.calculate (currentPosition, targetPosition);
-                    extendMotor.setPower(power); // Apply calculated power to hold position
+                    //extendMotor.setPower(power); // Apply calculated power to hold position
+                    telemetry.addData("Power Not being set equals: ", power);
+                    telemetry.update();
 
+                    /*
                     // Display telemetry
                     telemetry.addData("PID P", p);
                     telemetry.addData("PID I", i);
@@ -182,6 +203,8 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
                     telemetry.addData("Target Position", targetPosition);
                     telemetry.addData("PID Output", power);
                     telemetry.update();
+
+                     */
 
                     // Preset control
                     if (gamepad2.a) { // Use Case: Score in top bucket use case
@@ -204,9 +227,6 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
                     }
                     if (gamepad2.dpad_up) { // Use Case: Clip specimen on high bar
                         clipSpecimenHighBar();
-                    }
-                    if (gamepad1.dpad_left) { // Use Case: Reset Encoder button
-                        resetMotorPosition();
                     }
 
                     if (gamepad2.right_bumper) {
@@ -299,6 +319,7 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         extendArmToPosition(ZERO_EXTEND);
         moveArmToPosition(ANGLE_ZERO);
         waitForArmExtendAndAnglePosition();
+        extendMotor.setPower(0);
     }
 
     // Function to pick up from the ground
@@ -348,6 +369,16 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         ClawGrab.setPosition(CLAW_RELEASE);
     }
 
+    // Function to get Linear Actuators above the bar and ready to hang
+    private void readyToHang() {
+        moveHangSystemToPosition(ABOVE_LOWBAR);
+    }
+
+    // Function to fully hang the robot using linear actuators
+    private void hangOnLowBar() {
+        moveHangSystemToPosition(LOWBAR);
+    }
+
     //Function to Reset encoder button
     private void resetMotorPosition() {
         extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -357,7 +388,7 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     private void extendArmToPosition(double position) {
         extendMotor.setTargetPosition((int) position);
         extendMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        extendMotor.setPower(1);
+        extendMotor.setPower(.95);
     }
 
     // Helper function to move the arm to a target angle
@@ -367,21 +398,33 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         angMotor.setPower(1);
     }
 
-    // Helper function to wait for the arm to extend to the target position
+    // Helper function to move linear actuators for hanging the robot
+    private void moveHangSystemToPosition(double position) {
+        leftLinearActuatorMotor.setTargetPosition((int) position);
+        rightLinearActuatorMotor.setTargetPosition((int) position);
+        leftLinearActuatorMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        rightLinearActuatorMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        leftLinearActuatorMotor.setPower(1);
+        rightLinearActuatorMotor.setPower(1);
+    }
+
     private void waitForArmExtendAndAnglePosition() {
-        while (extendMotor.isBusy()||angMotor.isBusy()) {
-            // Wait for the arm to reach target
+        ElapsedTime timeout = new ElapsedTime();
+        while ((extendMotor.isBusy() || angMotor.isBusy()) && opModeIsActive() && timeout.seconds() < 3) {
+            // Wait for the arm to reach target or timeout
+            sleep(10);
         }
-        extendMotor.setPower(0);
+//        extendMotor.setPower(0);
         angMotor.setPower(0);
     }
 
-    // Helper function to wait for the arm to extend to the target position
     private void waitForArmExtendPosition() {
-        while (extendMotor.isBusy()) {
-            // Wait for the arm to reach target
+        ElapsedTime timeout = new ElapsedTime();
+        while (extendMotor.isBusy() && opModeIsActive() && timeout.seconds() < 3) {
+            // Wait for the arm to reach target or timeout
+            sleep(10);
         }
-        extendMotor.setPower(0);
+//        extendMotor.setPower(0);
     }
 
     // Helper function to wait for the arm to move to the target angle

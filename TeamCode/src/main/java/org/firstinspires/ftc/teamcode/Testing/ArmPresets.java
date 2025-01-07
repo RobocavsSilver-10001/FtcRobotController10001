@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Testing;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /*Tick Data
@@ -18,6 +20,10 @@ public class ArmPresets extends LinearOpMode {
     public DcMotorEx extendMotor;
 
     public DcMotorEx angMotor;
+
+    public DcMotorEx  leftLinearActuatorMotor;
+
+    public DcMotorEx  rightLinearActuatorMotor;
 
     public Servo ClawGrab;
     public Servo ClawTurn;
@@ -67,6 +73,16 @@ public class ArmPresets extends LinearOpMode {
         ClawTurn = hardwareMap.get(Servo.class, "ClawTurn");
         angMotor = hardwareMap.get(DcMotorEx.class, "AngleMotor");
         extendMotor = hardwareMap.get(DcMotorEx.class, "ExtendMotor");
+        leftLinearActuatorMotor = hardwareMap.get(DcMotorEx.class, "leftLAM");
+        rightLinearActuatorMotor = hardwareMap.get(DcMotorEx.class, "rightLAM");
+
+        //get our analog input from the hardwareMap
+        AnalogInput analogInput = hardwareMap.get(AnalogInput.class, "myanaloginput");
+
+// get the voltage of our analog line
+// divide by 3.3 (the max voltage) to get a value between 0 and 1
+// multiply by 360 to convert it to 0 to 360 degrees
+        double position = analogInput.getVoltage() / 3.3 * 360;
 
 
         //BRAKE
@@ -79,11 +95,16 @@ public class ArmPresets extends LinearOpMode {
 
         //Angle of arm stuff
         angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        angMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        angMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         //Extend Arm Stuff
         extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        //Linear Actuator stuff
+        leftLinearActuatorMotor.setDirection(DcMotorEx.Direction.FORWARD); //IDK
+        rightLinearActuatorMotor.setDirection(DcMotorEx.Direction.REVERSE); //IDK
+
 
         //Claw Stuff
         ClawTurn.setPosition(CLAW_START_POSITION);
