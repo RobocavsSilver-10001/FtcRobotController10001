@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode.Autonomous.Finalized;
+package org.firstinspires.ftc.teamcode.AutonomousClaw.Normal;
 
 import androidx.annotation.NonNull;
 
@@ -9,7 +9,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -17,8 +16,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.DefaultRRFiles.MecanumDrive;
 
-@Autonomous(name = "AdvancedSpecimenAutoRed")
-public class AdvancedSpecimenAutoRed extends LinearOpMode {
+public class AdvancedSpecimenAutoBlue extends LinearOpMode {
     //
 
     @Override
@@ -45,17 +43,23 @@ public class AdvancedSpecimenAutoRed extends LinearOpMode {
                         .stopAndAdd(new ClawRelease(ClawGrab, .65))
                         .stopAndAdd(new ClawAngle(ClawTurn, .52))
                         .stopAndAdd(new ArmAngle(angMotor, 2500))
-                        .splineToConstantHeading(new Vector2d(8, -36.76), Math.toRadians(90))
-                        .waitSeconds(1)
+                        .splineToConstantHeading(new Vector2d(8, -35), Math.toRadians(90))
+                        .waitSeconds(1.5)
                         .stopAndAdd(new ArmExtension(extendMotor, 1300))
                         .waitSeconds(1.5)
                         .stopAndAdd(new ClawRelease(ClawGrab, 0.55))
                         .lineToYConstantHeading(-50)
-                        .waitSeconds(.5)
                         .stopAndAdd(new ArmExtension(extendMotor, 0))
-                        .stopAndAdd(new ArmAngle(angMotor, 0))
+                        .stopAndAdd(new ArmAngle(angMotor, -1300))
                         .stopAndAdd(new ClawAngle(ClawTurn, .5))
-                        .splineToConstantHeading(new Vector2d(49, -53), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(51, -53), Math.toRadians(90))
+                        .stopAndAdd(new ArmExtension(extendMotor, 2050))
+                        .waitSeconds(.75)
+                        .stopAndAdd(new ClawRelease(ClawGrab, .65))
+                        .stopAndAdd(new ClawAngle(ClawTurn, .7))
+                        .stopAndAdd(new ArmAngle(angMotor, 0))
+                        .stopAndAdd(new ArmExtension(extendMotor, 0))
+                        .stopAndAdd(new ClawRelease(ClawGrab, .65))
                         .build()));
 
         // OPENS THE CLAW .stopAndAdd(new ClawRelease(ClawGrab, 0.55)) */

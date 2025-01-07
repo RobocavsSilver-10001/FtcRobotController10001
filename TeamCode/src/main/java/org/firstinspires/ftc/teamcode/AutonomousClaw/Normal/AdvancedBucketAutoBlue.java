@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode.Autonomous.Finalized;
+package org.firstinspires.ftc.teamcode.AutonomousClaw.Normal;
 
 import androidx.annotation.NonNull;
 
@@ -17,7 +17,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.DefaultRRFiles.MecanumDrive;
 
-@Autonomous(name = "AdvancedBucketAutoBlue")
 public class AdvancedBucketAutoBlue extends LinearOpMode {
 
     //
