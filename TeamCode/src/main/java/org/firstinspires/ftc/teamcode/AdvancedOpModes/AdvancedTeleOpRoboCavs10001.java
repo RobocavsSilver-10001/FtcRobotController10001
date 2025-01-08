@@ -50,8 +50,8 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     final double ANGLE_ARM_CLIP = 3100; // originally 2950
 
     // Linear Actuator Positions
-    final double LOWBAR = 1500;
-    final double ABOVE_LOWBAR = 1700;
+    final double LOWBAR = 5000;
+    final double ABOVE_LOWBAR = 10700;
 
     // PID control variables for the extend motor
     private PIDController pidController;
@@ -94,8 +94,8 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         // Set motor directions
         angMotor.setDirection(DcMotorEx.Direction.REVERSE);
         extendMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        leftLinearActuatorMotor.setDirection(DcMotorSimple.Direction.FORWARD); //IDK
-        rightLinearActuatorMotor.setDirection(DcMotorSimple.Direction.REVERSE); //IDK
+        leftLinearActuatorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightLinearActuatorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         fl.setDirection(DcMotorEx.Direction.FORWARD);
         fr.setDirection(DcMotorEx.Direction.REVERSE);
         bl.setDirection(DcMotorEx.Direction.FORWARD);
@@ -104,7 +104,11 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
         // Initialize PID controller for extend motor
         pidController = new PIDController(p, i, d);
 
-
+        // Reset encoders
+        angMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        angMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        extendMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         // Initialize claw positions
         ClawGrab.setPosition(CLAW_GRAB);
