@@ -76,13 +76,6 @@ public class ArmPresets extends LinearOpMode {
         leftLinearActuatorMotor = hardwareMap.get(DcMotorEx.class, "leftLAM");
         rightLinearActuatorMotor = hardwareMap.get(DcMotorEx.class, "rightLAM");
 
-        //get our analog input from the hardwareMap
-        AnalogInput analogInput = hardwareMap.get(AnalogInput.class, "myanaloginput");
-
-// get the voltage of our analog line
-// divide by 3.3 (the max voltage) to get a value between 0 and 1
-// multiply by 360 to convert it to 0 to 360 degrees
-        double position = analogInput.getVoltage() / 3.3 * 360;
 
 
         //BRAKE
@@ -211,11 +204,11 @@ public class ArmPresets extends LinearOpMode {
             _______________________________________________________________________________________
              */
 
-            if (gamepad2.a) {
-                ClawTurn.setPosition(0.54);
-            } else if (gamepad2.b) {
-                ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
-            }
+//            if (gamepad2.a) {
+//                ClawTurn.setPosition(0.54);
+//            } else if (gamepad2.b) {
+//                ClawTurn.setPosition(CLAW_DOWN_FLOOR_EXTEND);
+//            }
 
             if (gamepad2.dpad_up) {
                 double increase_claw_angle = 0.01;
@@ -259,6 +252,13 @@ public class ArmPresets extends LinearOpMode {
             _______________________________________________________________________________________
             _______________________________________________________________________________________
              */
+            if (gamepad2.a) {
+                leftLinearActuatorMotor.setPower(1);
+                rightLinearActuatorMotor.setPower(1);
+            } else if (gamepad2.b) {
+                leftLinearActuatorMotor.setPower(-1);
+                rightLinearActuatorMotor.setPower(-1);
+            }
             /*
             _______________________________________________________________________________________
             _______________________________________________________________________________________
