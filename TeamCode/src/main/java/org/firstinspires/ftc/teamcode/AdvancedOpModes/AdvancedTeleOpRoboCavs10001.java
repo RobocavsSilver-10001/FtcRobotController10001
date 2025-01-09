@@ -23,12 +23,12 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     public Servo ClawGrab, ClawTurn; // Claw servos
 
     // Constants for claw positions
-    final double CLAW_DOWN_FLOOR_EXTEND = 0.56;
-    final double CLAW_SCORE_TOP_BUCKET = 0.55;
-    final double CLAW_HOME_POSITION = 0.55;
-    final double CLAW_SPECIMEN_PICK_UP = 0.55;
-    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.0;
-    final double CLAW_CLIPPING_POSITION = 0.5594;
+    final double CLAW_DOWN_FLOOR_EXTEND = 0.4;
+    final double CLAW_SCORE_TOP_BUCKET = 0.4;
+    final double CLAW_HOME_POSITION = 0.4;
+    final double CLAW_SPECIMEN_PICK_UP = 0.4;
+    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.45;
+    final double CLAW_CLIPPING_POSITION = 0.4;
     final double CLAW_GRAB = 0.402;      // Fully closed
     final double CLAW_RELEASE = 0.5;  // Fully open
 

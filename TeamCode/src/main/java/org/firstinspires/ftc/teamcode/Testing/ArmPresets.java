@@ -28,24 +28,36 @@ public class ArmPresets extends LinearOpMode {
     public Servo ClawGrab;
     public Servo ClawTurn;
 
-    final double CLAW_DOWN_FLOOR_EXTEND = 0.5;
-    final double CLAW_SCORE_TOP_BUCKET = 0.5;
-    final double CLAW_START_POSITION = 0.6;
-
-    final double CLAW_GRAB = 0.64;      // Fully closed
+    // Constants for claw positions
+    final double CLAW_DOWN_FLOOR_EXTEND = 0.4;
+    final double CLAW_SCORE_TOP_BUCKET = 0.4;
+    final double CLAW_HOME_POSITION = 0.4;
+    final double CLAW_SPECIMEN_PICK_UP = 0.4;
+    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.45;
+    final double CLAW_CLIPPING_POSITION = 0.4;
+    final double CLAW_GRAB = 0.402;      // Fully closed
     final double CLAW_RELEASE = 0.5;  // Fully open
 
-
-    final double MAX_EXTEND_PICKING_UP = 2500;
+    // Arm extension positions
+    final double MAX_EXTEND_PICKING_UP = 1400;
     final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
+    final double EXTEND_POST_CLIPPING = 1000; // originally 900
 
-    final double ANGLE_FLOOR_PICK_UP = -1060;
-    final double ANGLE_SCORE_TOP_BUKET = 3700;
+    // Arm angle positions
+    final double ANGLE_FLOOR_PICK_UP = -1580;
+    final double ANGLE_SCORE_TOP_BUKET = 3800;
+    final double MIN_ARM_ANGLE = -1070;
+    final double MAX_ARM_ANGLE = 5000;
     final double ANGLE_ZERO = 0;
-    final double ANGLE_FULL_EXTENSION_FLOOR_PICK_UP = -850;
+    final double ANGLE_SPECIMEN_FLOOR_PICK_UP = -3305;
+    final double ANGLE_SPECIMEN_WALL_PICK_UP = 7000;
+    final double ANGLE_ARM_CLIP = 3100; // originally 2950
 
+    // Linear Actuator Positions
+    final double HANG_DOWN = 5000;
+    final double HANG_ABOVE_LOWBAR = 10700;
     /*
     _______________________________________________________________________________________
     _______________________________________________________________________________________
@@ -100,7 +112,7 @@ public class ArmPresets extends LinearOpMode {
 
 
         //Claw Stuff
-        ClawTurn.setPosition(CLAW_START_POSITION);
+        ClawTurn.setPosition(0.4);
         ClawGrab.setPosition(CLAW_GRAB);
 //        ClawGrab.setPosition(0.5);
 //        sleep(1000);
@@ -252,11 +264,24 @@ public class ArmPresets extends LinearOpMode {
             _______________________________________________________________________________________
             _______________________________________________________________________________________
              */
-            if (gamepad2.a) {
+            if (gamepad1.a) {
                 leftLinearActuatorMotor.setPower(1);
                 rightLinearActuatorMotor.setPower(1);
-            } else if (gamepad2.b) {
+            } else if (gamepad1.b) {
                 leftLinearActuatorMotor.setPower(-1);
+                rightLinearActuatorMotor.setPower(-1);
+            } else {
+                leftLinearActuatorMotor.setPower(0);
+                rightLinearActuatorMotor.setPower(0);
+            }
+
+            if (gamepad1.right_trigger > 0.1) {
+                leftLinearActuatorMotor.setPower(1);
+            } else if (gamepad1.left_trigger > 0.1) {
+                leftLinearActuatorMotor.setPower(-1);
+            } else if (gamepad1.right_bumper) {
+                rightLinearActuatorMotor.setPower(1);
+            } else if (gamepad1.left_bumper) {
                 rightLinearActuatorMotor.setPower(-1);
             } else {
                 leftLinearActuatorMotor.setPower(0);
