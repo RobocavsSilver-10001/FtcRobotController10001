@@ -27,10 +27,10 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     final double CLAW_SCORE_TOP_BUCKET = 0.55;
     final double CLAW_HOME_POSITION = 0.55;
     final double CLAW_SPECIMEN_PICK_UP = 0.55;
-    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.73;
+    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.0;
     final double CLAW_CLIPPING_POSITION = 0.5594;
-    final double CLAW_GRAB = 0.7;      // Fully closed
-    final double CLAW_RELEASE = 0.62;  // Fully open
+    final double CLAW_GRAB = 0.402;      // Fully closed
+    final double CLAW_RELEASE = 0.5;  // Fully open
 
     // Arm extension positions
     final double MAX_EXTEND_PICKING_UP = 1400;
@@ -50,8 +50,8 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     final double ANGLE_ARM_CLIP = 3100; // originally 2950
 
     // Linear Actuator Positions
-    final double LOWBAR = 5000;
-    final double ABOVE_LOWBAR = 10700;
+    final double HANG_DOWN = 5000;
+    final double HANG_ABOVE_LOWBAR = 10700;
 
     // PID control variables for the extend motor
     private PIDController pidController;
@@ -375,12 +375,12 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
 
     // Function to get Linear Actuators above the bar and ready to hang
     private void readyToHang() {
-        moveHangSystemToPosition(ABOVE_LOWBAR);
+        moveHangSystemToPosition(HANG_ABOVE_LOWBAR);
     }
 
     // Function to fully hang the robot using linear actuators
     private void hangOnLowBar() {
-        moveHangSystemToPosition(LOWBAR);
+        moveHangSystemToPosition(HANG_DOWN);
     }
 
     //Function to Reset encoder button

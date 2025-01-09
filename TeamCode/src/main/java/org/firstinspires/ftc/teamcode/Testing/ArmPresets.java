@@ -96,7 +96,7 @@ public class ArmPresets extends LinearOpMode {
 
         //Linear Actuator stuff
         leftLinearActuatorMotor.setDirection(DcMotorEx.Direction.FORWARD); //IDK
-        rightLinearActuatorMotor.setDirection(DcMotorEx.Direction.REVERSE); //IDK
+        rightLinearActuatorMotor.setDirection(DcMotorEx.Direction.FORWARD); //IDK
 
 
         //Claw Stuff
@@ -258,6 +258,9 @@ public class ArmPresets extends LinearOpMode {
             } else if (gamepad2.b) {
                 leftLinearActuatorMotor.setPower(-1);
                 rightLinearActuatorMotor.setPower(-1);
+            } else {
+                leftLinearActuatorMotor.setPower(0);
+                rightLinearActuatorMotor.setPower(0);
             }
             /*
             _______________________________________________________________________________________
