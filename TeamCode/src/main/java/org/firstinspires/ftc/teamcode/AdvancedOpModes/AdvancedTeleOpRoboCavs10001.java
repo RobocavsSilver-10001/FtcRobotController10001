@@ -29,8 +29,8 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     final double CLAW_SPECIMEN_PICK_UP = 0.33;
     final double CLAW_SPECIMEN_WALL_PICK_UP = 0.4825;
     final double CLAW_CLIPPING_POSITION = 0.33;
-    final double CLAW_GRAB = 0.402;      // Fully closed
-    final double CLAW_RELEASE = 0.47;  // Fully open
+    final double CLAW_GRAB = 0.389;      // Fully closed
+    final double CLAW_RELEASE = 0.465;  // Fully open
 
     // Arm extension positions
     final double MAX_EXTEND_PICKING_UP = 1400;
