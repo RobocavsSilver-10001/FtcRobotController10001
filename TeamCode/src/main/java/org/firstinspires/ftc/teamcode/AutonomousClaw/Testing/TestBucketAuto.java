@@ -48,7 +48,6 @@ public class TestBucketAuto extends LinearOpMode {
                         .stopAndAdd(new TestBucketAuto.ClawAngle(ClawTurn, .2))
                         .stopAndAdd(new TestBucketAuto.ArmAngle(angMotor, 2650))
                         .waitSeconds(.5)
-                        .waitSeconds(.5)
                         .stopAndAdd(new TestBucketAuto.ArmExtension(extendMotor, 1320))
                         .waitSeconds(1.5)
                         .stopAndAdd(new TestBucketAuto.ClawRelease(ClawGrab, 0.55))

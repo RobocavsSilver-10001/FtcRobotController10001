@@ -46,7 +46,7 @@ public class AdvancedRedBucket extends LinearOpMode {
                         .stopAndAdd(new ClawAngle(ClawTurn, 0.327))
                         .stopAndAdd(new ArmAngle(angMotor, 3200))
                         .splineToConstantHeading(new Vector2d(-5 , -35), Math.toRadians(90))
-                        .stopAndAdd(new ArmExtension(extendMotor, 700))
+                        .stopAndAdd(new ArmExtension(extendMotor, 650))
                         .waitSeconds(1)
                         .stopAndAdd(new ClawRelease(ClawGrab, .5))
                         .waitSeconds(1)
