@@ -23,24 +23,24 @@ public class AdvancedTeleOpRoboCavs10001 extends LinearOpMode {
     public Servo ClawGrab, ClawTurn; // Claw servos
 
     // Constants for claw positions
-    final double CLAW_DOWN_FLOOR_EXTEND = 0.4;
-    final double CLAW_SCORE_TOP_BUCKET = 0.4;
-    final double CLAW_HOME_POSITION = 0.4;
-    final double CLAW_SPECIMEN_PICK_UP = 0.4;
-    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.45;
-    final double CLAW_CLIPPING_POSITION = 0.4;
+    final double CLAW_DOWN_FLOOR_EXTEND = 0.33;
+    final double CLAW_SCORE_TOP_BUCKET = 0.33;
+    final double CLAW_HOME_POSITION = 0.33;
+    final double CLAW_SPECIMEN_PICK_UP = 0.33;
+    final double CLAW_SPECIMEN_WALL_PICK_UP = 0.4825;
+    final double CLAW_CLIPPING_POSITION = 0.33;
     final double CLAW_GRAB = 0.402;      // Fully closed
-    final double CLAW_RELEASE = 0.5;  // Fully open
+    final double CLAW_RELEASE = 0.47;  // Fully open
 
     // Arm extension positions
     final double MAX_EXTEND_PICKING_UP = 1400;
-    final double MAX_EXTEND_SCORE_IN_BUCKET = 2900;
+    final double MAX_EXTEND_SCORE_IN_BUCKET = 2000; // Originally 2900
     final double EXTEND_HALF = 1500;
     final double ZERO_EXTEND = 0;
-    final double EXTEND_POST_CLIPPING = 1000; // originally 900
+    final double EXTEND_POST_CLIPPING = 700; // originally 900
 
     // Arm angle positions
-    final double ANGLE_FLOOR_PICK_UP = -1580;
+    final double ANGLE_FLOOR_PICK_UP = -1180; // Originally -1580
     final double ANGLE_SCORE_TOP_BUKET = 3800;
     final double MIN_ARM_ANGLE = -1070;
     final double MAX_ARM_ANGLE = 5000;

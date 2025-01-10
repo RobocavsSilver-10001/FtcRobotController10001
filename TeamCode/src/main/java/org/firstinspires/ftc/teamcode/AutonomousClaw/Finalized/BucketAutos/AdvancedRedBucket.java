@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode.AutonomousClaw.Normal;
+package org.firstinspires.ftc.teamcode.AutonomousClaw.Finalized.BucketAutos;
 
 import androidx.annotation.NonNull;
 
@@ -18,8 +18,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.DefaultRRFiles.MecanumDrive;
 
-@Autonomous(name = "sus")
-public class AdvancedBucketAutoRed extends LinearOpMode {
+@Autonomous(name = "DUB")
+public class AdvancedRedBucket extends LinearOpMode {
     //
 
     @Override
@@ -42,37 +42,35 @@ public class AdvancedBucketAutoRed extends LinearOpMode {
 
         Actions.runBlocking(new SequentialAction(
                 drive.actionBuilder(new Pose2d(-8, -60, Math.toRadians(90)))
-                        .stopAndAdd(new ClawRelease(ClawGrab, 0.6))
-                        .stopAndAdd(new ClawAngle(ClawTurn, -.3))
+                        .stopAndAdd(new ClawRelease(ClawGrab, .4))
+                        .stopAndAdd(new ClawAngle(ClawTurn, 0.327))
                         .stopAndAdd(new ArmAngle(angMotor, 3200))
-                        .splineToConstantHeading(new Vector2d(-5 , -37), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(-5 , -35), Math.toRadians(90))
+                        .stopAndAdd(new ArmExtension(extendMotor, 700))
                         .waitSeconds(1)
-                        .stopAndAdd(new ArmExtension(extendMotor, 1300))
-                        .waitSeconds(1.5)
-                        .stopAndAdd(new ClawRelease(ClawGrab, 0.7))
-                        .waitSeconds(.5)
+                        .stopAndAdd(new ClawRelease(ClawGrab, .5))
+                        .waitSeconds(1)
                         .lineToYConstantHeading(-50)
                         .stopAndAdd(new ArmExtension(extendMotor, 0))
-                        .stopAndAdd(new ArmAngle(angMotor, 900))
-                        .stopAndAdd(new ClawAngle(ClawTurn, -.3))
-                        .splineToConstantHeading(new Vector2d(-43.5 , -56), Math.toRadians(90))
-                        .stopAndAdd(new ArmExtension(extendMotor, 1700))
-                        .stopAndAdd(new ClawRelease(ClawGrab, .6))
-                        .waitSeconds(.75)
-                        .stopAndAdd(new ClawAngle(ClawTurn, -.3))
+                        .stopAndAdd(new ArmAngle(angMotor, -2500))
+                        .stopAndAdd(new ClawAngle(ClawTurn, .335))
+                        .splineToConstantHeading(new Vector2d(-44.5 , -40), Math.toRadians(90))
+                        .waitSeconds(.5)
+                        .stopAndAdd(new ArmExtension(extendMotor, 325))
+                        .waitSeconds(1)
+                        .stopAndAdd(new ClawRelease(ClawGrab, .4))
                         .stopAndAdd(new ArmAngle(angMotor, 3800))
                         .waitSeconds(1.5)
                         .stopAndAdd(new ArmExtension(extendMotor, 2900))
-                        .waitSeconds(1.5)
-                        .turn(2.1)
-                        .lineToX(-50)
-                        .stopAndAdd(new ClawRelease(ClawGrab, .7))
+                        .waitSeconds(.5)
+                        .turn(2.45)
+                        .waitSeconds(.5)
+                        .lineToX(-55)
+                        .stopAndAdd(new ClawRelease(ClawGrab, .5))
                         .waitSeconds(.5)
                         .strafeToLinearHeading(new Vector2d(-59, -52), Math.toRadians(90))
-                        .waitSeconds(.5)
                         .stopAndAdd(new ArmExtension(extendMotor, 0))
                         .stopAndAdd(new ArmAngle(angMotor, 0))
-                        .waitSeconds(2)
                         .build()));
 
 
@@ -151,31 +149,3 @@ public class AdvancedBucketAutoRed extends LinearOpMode {
         }
     }
 }
-
- /* Actions.runBlocking(new SequentialAction(
-                drive.actionBuilder(new Pose2d(-8, -60, Math.toRadians(90)))
-                        .stopAndAdd(new ClawRelease(ClawGrab, .65))
-                        .stopAndAdd(new ClawAngle(ClawTurn, .52))
-                        .stopAndAdd(new ArmAngle(angMotor, 2500))
-                        .waitSeconds(.5)
-                        .splineToConstantHeading(new Vector2d(-8, -36), Math.toRadians(90))
-                        .waitSeconds(.5)
-                        .stopAndAdd(new ArmExtension(extendMotor, 1200))
-                        .waitSeconds(1.5)
-                        .stopAndAdd(new ClawRelease(ClawGrab, 0.55))
-                        .waitSeconds(.75)
-                        .lineToYConstantHeading(-50)
-                        .waitSeconds(.5)
-                        .stopAndAdd(new ArmExtension(extendMotor, 0))
-                        .stopAndAdd(new ArmAngle(angMotor, -1210))
-                        .stopAndAdd(new ClawAngle(ClawTurn, .5))
-                        .splineToConstantHeading(new Vector2d(-47, -55), Math.toRadians(90))
-                        .waitSeconds(1)
-                        .stopAndAdd(new ArmExtension(extendMotor, 2000))
-                        .waitSeconds(2)
-                        .stopAndAdd(new ClawRelease(ClawGrab, .65))
-                        .waitSeconds(.75)
-                        .stopAndAdd(new ArmAngle(angMotor, 0))
-                        .stopAndAdd(new ArmExtension(extendMotor, 0))
-
-                        .build())); */

@@ -67,7 +67,7 @@ public class AdvancedBucketAutoBlue extends LinearOpMode {
                         .stopAndAdd(new ClawRelease(ClawGrab, .55))
                         .waitSeconds(.5)
                         .strafeToLinearHeading(new Vector2d(-56, -50), Math.toRadians(90))
-                        .waitSeconds(2)
+                        .waitSeconds(.5)
                         .stopAndAdd(new ArmAngle(angMotor, 0))
                         .stopAndAdd(new ArmExtension(extendMotor, 0))
                         .waitSeconds(4)
