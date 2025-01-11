@@ -18,15 +18,53 @@ public class MeepMeepTesting {
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-8, -60, Math.toRadians(90)))
-                .splineToConstantHeading(new Vector2d(-5 , -37), Math.toRadians(90))
-                .waitSeconds(1)
-                .lineToYConstantHeading(-50)
-                .splineToConstantHeading(new Vector2d(-44.5 , -40), Math.toRadians(90))
-                .waitSeconds(1.5)
-                .turn(2.45)
-                .lineToX(-55)
+                //to score specimen
+                .strafeToConstantHeading(new Vector2d(-5, -35))
                 .waitSeconds(.5)
-                .strafeToLinearHeading(new Vector2d(-59, -52), Math.toRadians(90))
+                .waitSeconds(1.5)
+                .waitSeconds(.5)
+                .lineToYConstantHeading(-32)
+                .waitSeconds(.5)
+                .lineToYConstantHeading(-35)
+                //score first sample
+                //pick up sample
+                .splineToConstantHeading(new Vector2d(-48, -56), Math.toRadians(90))
+                .waitSeconds(1.5)
+                //.stopAndAdd(new TestBucketAuto.ClawAngle(ClawTurn, .5))
+                .waitSeconds(2.5)
+                .waitSeconds(1.5)
+                //score
+                .turnTo(Math.toRadians(215))
+                .waitSeconds(.2)
+                .lineToX(-50)
+                .waitSeconds(.5)
+                //score second sample
+                //pick up sample
+                .strafeToLinearHeading(new Vector2d(-58, -50), Math.toRadians(90))
+                .waitSeconds(.5)
+                .waitSeconds(.75)
+                .waitSeconds(1.5)
+                .waitSeconds(1.5)
+                //score sample
+                .strafeToLinearHeading(new Vector2d(-48, -56), Math.toRadians(215))
+                .waitSeconds(.5)
+                .strafeToLinearHeading(new Vector2d(-49, -57), Math.toRadians(215))
+                .lineToX(-50)
+                .waitSeconds(.5)
+                //score third sample
+                //pick up sample
+                .strafeToLinearHeading(new Vector2d(-61, -50), Math.toRadians(100))
+                .waitSeconds(.5)
+                .waitSeconds(.75)
+                .waitSeconds(1.5)
+                .waitSeconds(1.5)
+                //score sample
+                .strafeToLinearHeading(new Vector2d(-48, -56), Math.toRadians(215))
+                .strafeToLinearHeading(new Vector2d(-49, -57), Math.toRadians(215))
+                .lineToX(-50)
+                .waitSeconds(.5)
+                //park
+                .strafeToLinearHeading(new Vector2d(-25, 0), Math.toRadians(0))
                 .waitSeconds(.5)
                 .build());
 

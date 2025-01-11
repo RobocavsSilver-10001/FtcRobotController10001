@@ -1,11 +1,12 @@
 
-package org.firstinspires.ftc.teamcode.AutonomousClaw.Testing;
+package org.firstinspires.ftc.teamcode.AutonomousClaw.Finalized.BucketAutos;
 
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.DefaultRRFiles.MecanumDrive;
 
 @Autonomous(name = "BucketAutoOne")
 public class TestBucketAuto extends LinearOpMode {
+    //
 
     @Override
     public void runOpMode() {
@@ -28,7 +30,6 @@ public class TestBucketAuto extends LinearOpMode {
         DcMotor angMotor = hardwareMap.dcMotor.get("AngleMotor");
         DcMotor extendMotor = hardwareMap.dcMotor.get("ExtendMotor");
 
-
         angMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         angMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         angMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -37,16 +38,15 @@ public class TestBucketAuto extends LinearOpMode {
         extendMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-
         waitForStart();
 
         Actions.runBlocking(new SequentialAction(
                 drive.actionBuilder(new Pose2d(-8, -60, Math.toRadians(90)))
                         //to score specimen
                         .strafeToConstantHeading(new Vector2d(-5, -35))
-                        .stopAndAdd(new TestBucketAuto.ClawRelease(ClawGrab, 0))
-                        .stopAndAdd(new TestBucketAuto.ClawAngle(ClawTurn, .2))
-                        .stopAndAdd(new TestBucketAuto.ArmAngle(angMotor, 2650))
+                        .stopAndAdd(new TestBucketAuto.ClawRelease(ClawGrab, .389))
+                        .stopAndAdd(new TestBucketAuto.ClawAngle(ClawTurn, 0.33))
+                        .stopAndAdd(new TestBucketAuto.ArmAngle(angMotor, 3200))
                         .waitSeconds(.5)
                         .stopAndAdd(new TestBucketAuto.ArmExtension(extendMotor, 1320))
                         .waitSeconds(1.5)
@@ -120,7 +120,12 @@ public class TestBucketAuto extends LinearOpMode {
                         .stopAndAdd(new TestBucketAuto.ClawRelease(ClawGrab, .65))
                         .stopAndAdd(new TestBucketAuto.ClawAngle(ClawTurn, .5))
                         .build()));
+
+
+        // OPENS THE CLAW .stopAndAdd(new ClawRelease(ClawGrab, 0.55)) */
+        //arm angle
     }
+
 
     public class ClawRelease implements Action {
         Servo ClawGrab;
@@ -146,7 +151,6 @@ public class TestBucketAuto extends LinearOpMode {
             this.ClawTurn = CT;
             this.TurnPosition = TP;
         }
-
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             ClawTurn.setPosition(TurnPosition);
